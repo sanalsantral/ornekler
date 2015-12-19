@@ -8,8 +8,9 @@ deneme.onopen = function() {
     deneme.send(JSON.stringify(mesaj));
 };
 deneme.onmessage = function(msg) {
-    console.log(decodeURI(msg.data));
-    var mesaj = JSON.parse(decodeURI(msg.data));
+    console.log(decodeURIComponent(msg.data));
+    var mesaj = JSON.parse(decodeURIComponent(msg.data));
+    mesaj = JSON.parse(mesaj.message);
     if (mesaj.komut === "arayan") {
         console.log("Arayan:"+mesaj.komut);
         console.log("Tipi:"+mesaj.tipi);
