@@ -1,0 +1,44 @@
+/**
+ * Bu pi uygulaması arayan kişinin müşteriniz olup olmadığını kontrol eder ve eğer müşteriniz ise
+ * adını ve soyadını okur.
+ */
+
+function musteriKontrol(callback) {
+  // Aşağıda ki kod arayan numarayı example sitesine get isteği olarak gönderir.
+  get('http://example.com/musteriKontrol?numara=' + $arayan, function(response) {
+    if (response.statusCode == 200) {
+        // Sonuç doğru ise callback işleniyor.
+        // Gelen veri response değişkeni içinde ki data içerisinde yer alır.
+        // Örnek veri dönüşü bir JSON tipindedir ve şu şekildedir;
+        // { musteriNo: 12345, adi: 'Sanal', soyadi: 'Santral' }
+        callback(null, response.data);
+    } else {
+        callback(new Error('Hata var'), null);
+    }
+  }, function(hata) {
+    callback(hata, null);
+  });
+}
+
+cevapla(function(donus) {
+    musteriKontrol(function(hata, sonuc) {
+        if (hata) {
+            // Medyada ki kayıt numarası 101 olan "Müşterimiz değilsiniz, lütfen daha sonra tekrar arayın" sesi çalınıyor.
+            sesCal(101, function(sesDonus) {
+                kapat(function(k) {
+                    // Çağrı kapatılıyor.
+                });
+            });
+        } else {
+            // Aşağıda ki kod ile müşterinin adı ve soyadı TextToSpeech işlemi ile okunuyor.
+            var adSoyad;
+            adSoyad = 'Sayın' + sonuc.adi + ' ' + sonuc.soyadi + ' hoş geldiniz.';
+            tts(adSoyad, function(ttsDonus) {
+                // Çağrı kapatılıyor.
+                kapat(function(k2) {
+
+                });
+            });
+        }
+    });
+});

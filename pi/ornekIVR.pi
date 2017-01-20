@@ -1,0 +1,28 @@
+/**
+ * Bu pi uygulaması örnek bir IVR uygulamasıdır.
+ */
+
+cevapla(function(sonuc) {
+    // Burada 100 numaralı ses dosyasını (Medya) çalar, 5 saniye süreyle 1 haneli bir tuşa basılmasını ister.
+    // Örnek sesimiz şu şekilde düşünülmüştür;
+    // Satış için 1'i, Destek için 2'yi Çıkış için 3'ü
+    tusOku(100, 5000, 1, function(tus) {
+        if (tus == '1') {
+            // Aşağıda ki kod çağrıyı 200 numaralı IVR'a yönlendirir.
+            ivraYonlendir(200, function(ivr) {
+
+            });
+        }
+        if (tus == '2') {
+            // Aşağıda ki kod eğer 2 tuşuna basılırsa çağrıyı 1000 dahilisine yönlendirir.
+            dahiliyeYonlendir(1000, function(ivr) {
+
+            });
+        }
+        if (tus == '3') {
+            kapat(function(k) {
+
+            });
+        }
+    });
+});

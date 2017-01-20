@@ -1,0 +1,15 @@
+/**
+ * Bu Pi uygulaması santrale gelen çağrıyı cevaplar ve çağrıyı
+ * santralde tanımlı kuyruğa aktarır.
+ */
+
+cevapla(function(sonuc) {
+    // Aşağıda ki kod panelinizde tanımlı (Medya bölümü) 100 kayıt numaralı sesi çalar.
+    sesCal(100, function(donus) {
+        // Aşağıda ki kod çağrıyı panelinizde tanımlı (Kuyruk bölümü) 500 kayıt numaralı kuyruğa aktarır.
+        kuyrugaYonlendir(500, function(kuyrukDonus) {
+            // Logla komutu uygulama log kısmına log kaydı düşürür.
+            logla('Çağrı aktarıldı');
+        });
+    });
+});
