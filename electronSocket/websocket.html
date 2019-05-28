@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html> 
+    <head>
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    </head>
+<body>
+    <script>
+        const{ipcRenderer}=require('electron')
+        function myFunction() {
+            let data={
+                api_key:"",
+                dahili_no:"",
+                dahili_ayrac:"",
+                santral_id:"",
+            }
+            data.api_key=document.getElementById("ApiKey").value
+            data.dahili_no=document.getElementById("DahiliNo").value
+            data.dahili_ayrac=document.getElementById("DahiliAyrac").value
+            data.santral_id=document.getElementById("SantralId").value
+            ipcRenderer.send("socketData",data)
+        }
+        function fileData(data){
+            document.getElementById("ApiKey").value = data.api_key;
+            document.getElementById("DahiliNo").value = data.dahili_no;
+            document.getElementById("DahiliAyrac").value = data.dahili_ayrac;
+            document.getElementById("SantralId").value = data.santral_id;
+        }
+        ipcRenderer.send('infoData')
+        ipcRenderer.on('infoRes',(event,arg)=>{
+            console.log(arg);
+            fileData(arg)
+        })
+        
+    </script>
+    <div class="container">
+        <div class="form-group">
+            <label for="Isim">Api Key</label>
+            <input type="text" name="apiKey" id="ApiKey" class="form-control"/>
+        </div>
+        <div class="form-group">
+            <label for="Email">Santral Id</label>
+            <input type="text" name="santralId" id="SantralId" class="form-control"/>
+        </div>
+        <div class="form-group">
+            <label for="Email">Dahili No</label>
+            <input type="text" name="dahiliNo" id="DahiliNo" class="form-control"/>
+        </div>
+        <div class="form-group">
+            <label for="Email">Dahili Ayraç</label>
+            <input type="text" name="dahiliAyrac" id="DahiliAyrac" class="form-control"/>
+        </div>
+        <div class="form-group">
+            <button class="btn btn-primary" id="kaydet" onclick="myFunction()">Bağlan</button>
+        </div>
+        <div align="center">
+            <img src="./image/amblem.png" width="200" height="200"/>
+        </div>
+        <div align="center">
+            <Text><b>Sanal Santral Telekominikasyon Tic. A.Ş.</b></Text>
+        </div>
+        <div align="center">
+            <Text><b>0850 441 00 00</b></Text>
+        </div>
+    </div>
+</body>
+</html>
