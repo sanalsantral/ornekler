@@ -1,5 +1,5 @@
 const path = require("path")
-const { app, BrowserWindow ,Tray ,Menu, ipcMain, globalShortcut} = require('electron')
+const { app, BrowserWindow ,Tray ,Menu, ipcMain } = require('electron')
 var fs = require('fs')
 const { shell } = require('electron')
 const WebSocket = require("ws")
