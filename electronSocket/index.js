@@ -1,14 +1,14 @@
 const path = require("path")
-const { app, BrowserWindow ,Tray ,Menu,ipcMain} = require('electron')
+const { app, BrowserWindow ,Tray ,Menu, ipcMain, globalShortcut} = require('electron')
 var fs = require('fs')
 const { shell } = require('electron')
 const WebSocket = require("ws")
 const { dialog } = require('electron')
 let tray = null;
 let count=0; 
+
 function wsMain(newSocketData) {
-   
-    console.log(newSocketData)
+    
     if( newSocketData.api_key  !=='' && 
         newSocketData.dahili_ayrac !=='' &&
         newSocketData.dahili_no !== '' &&
@@ -42,15 +42,20 @@ function wsMain(newSocketData) {
             }else{
                 if(wssmessage.komut==='giris')
                 { 
-                    console.log("soket baglantisi gerceklesti")
                     const options = {
                         message: 'Soket Bağlantısı Gerçekleşti',
                     };
                     fs.writeFileSync(path.resolve(__dirname,'info.json'),JSON.stringify(message.msg, null, 2) , 'utf-8');
                     dialog.showMessageBox(null,options)
                 }
-                if (wssmessage.olay === 'dial' && wssmessage.aranan===JSON.parse(message.msg).dahili_no) {
-                    shell.openItem('infinia:'+wssmessage.arayan);
+                if (wssmessage.olay === 'dial') {
+                    let date = new Date(Date.now())
+                    let formatted_date = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() 
+                    shell.openItem(`infinia:${wssmessage.arayan}`);
+                    fs.appendFile(path.resolve(__dirname,'gelenCagrilar.txt'),wssmessage.arayan+" "+formatted_date + '\n', function (err) {
+                        if (err) throw err;
+                        console.log('Loglandı');
+                    });
                 }
                 
             }
@@ -61,12 +66,9 @@ function wsMain(newSocketData) {
                 dialog.showErrorBox('Hata','Soket bağlantısı sağlanamadı tekrar çalıştırınız.');
                 count=0;    
             }else{
-                dialog.showErrorBox('Hata', err.message);
                 wsMain(newSocketData)
             }
-            
         });
-        
     }else{
         dialog.showErrorBox('Hata','Boş Gönderilemez');
     }
@@ -84,6 +86,13 @@ function main() {
         title:'Sanal Santral',
         icon: path.resolve(__dirname, 'image', 'amblem.png')
     })
+    const gotTheLock = app.requestSingleInstanceLock()
+
+    if (!gotTheLock) {
+        dialog.showErrorBox('Hata','Uygulama çalışmaktadır.');
+        app.quit()
+    }
+
     fs.readFile(path.resolve(__dirname,'info.json'),"utf8",function(err,data){
         if(data===undefined){
             win.show()
@@ -108,7 +117,11 @@ function main() {
     }]))
     win.setMenu(null)
     const fpath = path.join(__dirname, 'websocket.html')
-    win.loadURL(fpath)
+    if(process.platform==='linux'){
+        win.loadURL(`file:${fpath}`)
+    }else{
+        win.loadURL(fpath)
+    }
     ipcMain.on('socketData', function(event,arg) {
         wsMain(arg)
      });
