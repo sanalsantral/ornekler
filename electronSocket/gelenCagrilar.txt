@@ -101,3 +101,6 @@ Uygulama başladı. 2019-7-19 11:38:55
 Dosya okunurken hata oluştu:ENOENT: no such file or directory, open '/home/oem/Desktop/sss/ornekler/electronSocket/info.json' 2019-7-19 11:39:11
 Uygulama başladı. 2019-7-19 11:39:26
 Dosya okunurken hata oluştu:ENOENT: no such file or directory, open '/home/oem/Desktop/sss/ornekler/electronSocket/info.json' 2019-7-19 11:39:55
+Uygulama başladı. 2019-7-19 11:54:37
+Dosya okunurken hata oluştu:ENOENT: no such file or directory, open '/home/oem/Desktop/sss/ornekler/electronSocket/info.json' 2019-7-19 11:54:37
+Socket bağlantısı sağlandı. 2019-7-19 11:54:50

@@ -156,7 +156,7 @@ async function main() {
         ipcMain.on('socketData', function (event, arg) {
             fs.writeFileSync(path.resolve(__dirname, 'info.json'), JSON.stringify(arg, null, 2), 'utf-8');
             wsMain(arg);
-            if (baglandi) win.hide();
+            if (baglandi) ws.close();
         });
         let bilgiler;
         try {
