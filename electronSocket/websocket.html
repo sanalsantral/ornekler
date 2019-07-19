@@ -5,7 +5,7 @@
     </head>
 <body>
     <script>
-         const { ipcRenderer } = require('electron');
+        const { ipcRenderer } = require('electron');
         function myFunction() {
             let data={
                 api_key:"",
@@ -29,7 +29,7 @@
         ipcRenderer.send('infoData');
         ipcRenderer.on('infoRes',(event,arg)=>{
             fileData(arg)
-        });         
+        }); 
     </script>
     <div class="container">
         <div class="form-group">

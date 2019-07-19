@@ -119,8 +119,8 @@ async function main() {
         const gotTheLock = app.requestSingleInstanceLock()
         await logla('Uygulama başladı.');
         if (!gotTheLock) {
+            dialog.showErrorBox('Hata', 'Uygulama çalışmaktadır.');
             app.quit();
-            dialog.showErrorBox('Hata', 'Uygulama çalışmaktadır.');     
         }
         tray = new Tray(path.resolve(__dirname, 'image', 'amblem32x32.png'));
         tray.on('click', () => {
@@ -152,7 +152,6 @@ async function main() {
             e.preventDefault();
             win.hide();
         });
-        
         ipcMain.on('socketData', function (event, arg) {
             fs.writeFileSync(path.resolve(__dirname, 'info.json'), JSON.stringify(arg, null, 2), 'utf-8');
             wsMain(arg);
