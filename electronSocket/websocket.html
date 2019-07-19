@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html> 
     <head>
-            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     </head>
 <body>
     <script>
-        const{ipcRenderer}=require('electron')
+         const { ipcRenderer } = require('electron');
         function myFunction() {
             let data={
                 api_key:"",
@@ -19,18 +19,17 @@
             data.santral_id=document.getElementById("SantralId").value
             ipcRenderer.send("socketData",data)
         }
+        
         function fileData(data){
             document.getElementById("ApiKey").value = data.api_key;
             document.getElementById("DahiliNo").value = data.dahili_no;
             document.getElementById("DahiliAyrac").value = data.dahili_ayrac;
             document.getElementById("SantralId").value = data.santral_id;
         }
-        ipcRenderer.send('infoData')
+        ipcRenderer.send('infoData');
         ipcRenderer.on('infoRes',(event,arg)=>{
-            console.log(arg);
             fileData(arg)
-        })
-        
+        });         
     </script>
     <div class="container">
         <div class="form-group">

@@ -1,1 +1,6 @@
 .vs/*
+.vscode/*
+.idea/*
+node_modules/*
+electronSocket/node_modules/*
+electronSocket/info.json/*
