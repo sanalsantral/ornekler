@@ -5,7 +5,7 @@
     </head>
 <body>
     <script>
-        /* const { ipcRenderer } = require('electron');
+        const { ipcRenderer } = require('electron');
         function myFunction() {
             let data={
                 api_key:"",
@@ -19,16 +19,17 @@
             data.santral_id=document.getElementById("SantralId").value
             ipcRenderer.send("socketData",data)
         }
+        
         function fileData(data){
             document.getElementById("ApiKey").value = data.api_key;
             document.getElementById("DahiliNo").value = data.dahili_no;
             document.getElementById("DahiliAyrac").value = data.dahili_ayrac;
             document.getElementById("SantralId").value = data.santral_id;
         }
-        ipcRenderer.sendSync('infoData');
+        ipcRenderer.send('infoData');
         ipcRenderer.on('infoRes',(event,arg)=>{
             fileData(arg)
-        });         */
+        }); 
     </script>
     <div class="container">
         <div class="form-group">

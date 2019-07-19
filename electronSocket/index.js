@@ -33,6 +33,7 @@ function logla(str) {
 
 let baglandi = false;
 let ws;
+let win
 
 function wsMain(newSocketData) {
 
@@ -69,9 +70,10 @@ function wsMain(newSocketData) {
                 if (wssmessage.hata === true) {
                     logla('Hata:' + wssmessage.aciklama);
                 } else {
-                    if (wssmessage.komut === 'giris') {                       
-                        baglandi = true;
+                    if (wssmessage.komut === 'giris') {            
                         logla('Socket bağlantısı sağlandı.');
+                        baglandi=true
+                        win.hide()
                     } else if (baglandi && wssmessage.komut === 'arayan') {
                         if (wssmessage.olay === 'dial') {
                             let donus = shell.openItem(`infinia:${wssmessage.arayan}`);
@@ -103,7 +105,11 @@ let newSocketData = "";
 
 async function main() {
     try {
-        let win = new BrowserWindow({
+        app.setLoginItemSettings({
+            openAtLogin: true,
+            path: app.getPath('exe')
+        })
+        win = new BrowserWindow({
             width: 400,
             height: 650,
             webPreferences: {
@@ -113,7 +119,7 @@ async function main() {
             icon: path.resolve(__dirname, 'image', 'amblem32x32.png'),
             show: false
         });
-        win.webContents.openDevTools();
+        // win.webContents.openDevTools();
         const gotTheLock = app.requestSingleInstanceLock()
         await logla('Uygulama başladı.');
         if (!gotTheLock) {
@@ -129,7 +135,14 @@ async function main() {
             click: () => {
                 process.exit(0);
             },
-        }]))
+        },
+        {
+            label: 'Open',
+            click: () => {
+                win.show()
+            },
+        }
+        ]))
         win.setMenu(null);
         const fpath = path.join(__dirname, 'websocket.html');
         if (process.platform === 'linux') {
@@ -143,13 +156,10 @@ async function main() {
             e.preventDefault();
             win.hide();
         });
-        ipcMain.on('infoData', (event, arg) => {
-            event.sender.send('infoRes', bilgiler);
-        });
         ipcMain.on('socketData', function (event, arg) {
             fs.writeFileSync(path.resolve(__dirname, 'info.json'), JSON.stringify(arg, null, 2), 'utf-8');
-            if (baglandi) ws.close();
             wsMain(arg);
+            if (baglandi) ws.close();
         });
         let bilgiler;
         try {
@@ -157,7 +167,10 @@ async function main() {
             if (data === undefined) {
                 win.show();
             } else {
-                bilgiler = JSON.parse(JSON.parse(data));
+                bilgiler = JSON.parse(data);
+                ipcMain.on('infoData', (event, arg) => {
+                    event.sender.send('infoRes', bilgiler);
+                });
                 wsMain(bilgiler);
                 win.hide();
             }

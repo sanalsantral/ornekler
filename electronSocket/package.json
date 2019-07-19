@@ -1,18 +1,33 @@
 {
-  "name": "electronsocket",
+  "name": "sanalsantral",
   "version": "1.0.0",
-  "description": "",
+  "description": "Sanal Santral",
+  "email": "Sanal Santral",
+  "url": "http://www.sanalsantral.com.tr/",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ."
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist:windows": "electron-builder --windows"
   },
-  "author": "",
+  "author": "Sanal Santral",
   "license": "ISC",
   "dependencies": {
     "ws": "^7.0.0"
   },
   "devDependencies": {
-    "electron": "^5.0.1"
+    "electron": "^5.0.1",
+    "electron-builder": "^21.1.1"
+  },
+  "build": {
+    "appId": "com.sanalsantral",
+    "win": {
+      "target": "nsis",
+      "icon": "build icon.ico"
+    },
+    "nsis": {
+      "createDesktopShortcut": true
+    }
   }
 }
