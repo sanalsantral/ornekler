@@ -36,7 +36,7 @@ let ws;
 let win
 
 function wsMain(newSocketData) {
-
+    ws = null;
     if (newSocketData.api_key !== '' &&
         newSocketData.dahili_ayrac !== '' &&
         newSocketData.dahili_no !== '' &&
@@ -61,8 +61,35 @@ function wsMain(newSocketData) {
             Object.assign({}, msg, {
                 id: msg.id || randomId,
             });
+        ws.isAlive = true;
         ws.on('open', function open() {
+            let t = new setInterval(() => {
+                if (!ws.isAlive) {
+                    logla('Websocket mefta.');
+                    clearInterval(t);
+                    ws.terminate();
+                    wsMain(newSocketData);
+                }
+            }, 5000);                    
             ws.send(message.msg);
+            setTimeout(function() {
+                ws.isAlive = false;
+                ws.ping();                
+            }, 1000);
+        });
+        ws.on('ping', function() {
+            logla('ping geldi');
+            ws.pong();
+        });
+        ws.on('pong', function() {
+            ws.isAlive = true;
+            setTimeout(function() {
+                if (ws.readyState === 1) {
+                    ws.isAlive = false;
+                    ws.ping();                
+                }
+            }, 30000);
+            logla('pong geldi');
         });
         ws.on('message', function incoming(e) {            
             try {
@@ -72,7 +99,7 @@ function wsMain(newSocketData) {
                 } else {
                     if (wssmessage.komut === 'giris') {            
                         logla('Socket bağlantısı sağlandı.');
-                        baglandi=true
+                        baglandi=true;
                         win.hide()
                     } else if (baglandi && wssmessage.komut === 'arayan') {
                         if (wssmessage.olay === 'dial') {
@@ -87,14 +114,19 @@ function wsMain(newSocketData) {
                 logla('Parse hatası:' + err.message);
             }
         });
-        ws.on('error', function (err) {
-            count++;
-            if (count === 3) {
-                dialog.showErrorBox('Hata', 'Soket bağlantısı sağlanamadı. Uygulamayı tekrar çalıştırınız.');
-                count = 0;
-            } else {
+        ws.on('close', function(e) {
+            logla('Socket bağlantısı kapandı. Tekrar bağlanıyor...' + JSON.stringify(e));
+            setTimeout(() => {
+                ws.terminate();
                 wsMain(newSocketData);
-            }
+            }, 5000);
+        });
+        ws.on('error', function (err) {
+            logla('Socket bağlantısı sağlanamadı. Tekrar deneniyor...');
+            /*
+            setTimeout(() => {
+                wsMain(newSocketData);
+            }, 1000);*/
         });
     } else {
         dialog.showErrorBox('Hata', 'Ayarlar geçersiz. Lütfen tekrar kontrol ediniz.');
@@ -119,7 +151,7 @@ async function main() {
             icon: path.resolve(__dirname, 'image', 'amblem32x32.png'),
             show: false
         });
-        // win.webContents.openDevTools();
+        win.webContents.openDevTools();
         const gotTheLock = app.requestSingleInstanceLock()
         await logla('Uygulama başladı.');
         if (!gotTheLock) {
