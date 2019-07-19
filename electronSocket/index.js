@@ -73,8 +73,10 @@ function wsMain(newSocketData) {
             }, 5000);                    
             ws.send(message.msg);
             setTimeout(function() {
-                ws.isAlive = false;
-                ws.ping();                
+                if (ws.readyState === 1) {
+                    ws.isAlive = false;
+                    ws.ping();                
+                }
             }, 1000);
         });
         ws.on('ping', function() {
@@ -100,7 +102,7 @@ function wsMain(newSocketData) {
                     if (wssmessage.komut === 'giris') {            
                         logla('Socket bağlantısı sağlandı.');
                         baglandi=true;
-                        win.hide()
+                        win.hide();
                     } else if (baglandi && wssmessage.komut === 'arayan') {
                         if (wssmessage.olay === 'dial') {
                             let donus = shell.openItem(`infinia:${wssmessage.arayan}`);
