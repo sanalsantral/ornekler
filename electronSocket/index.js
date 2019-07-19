@@ -105,6 +105,10 @@ let newSocketData = "";
 
 async function main() {
     try {
+        app.setLoginItemSettings({
+            openAtLogin: true,
+            path: app.getPath('exe')
+        })
         win = new BrowserWindow({
             width: 400,
             height: 650,
@@ -115,7 +119,7 @@ async function main() {
             icon: path.resolve(__dirname, 'image', 'amblem32x32.png'),
             show: false
         });
-        win.webContents.openDevTools();
+        // win.webContents.openDevTools();
         const gotTheLock = app.requestSingleInstanceLock()
         await logla('Uygulama başladı.');
         if (!gotTheLock) {
