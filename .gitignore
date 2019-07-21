@@ -4,3 +4,5 @@
 node_modules/*
 electronSocket/node_modules/*
 electronSocket/dist/*
+electronSocket/gelenCagrilar.txt
+electronSocket/info.json

@@ -8,7 +8,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
-    "pack": "electron-builder --dir",
+    "pack": "electron-packager . sanalsantral --platform=win32",
     "dist:windows": "electron-builder --windows"
   },
   "author": "Sanal Santral",
@@ -24,7 +24,7 @@
     "appId": "com.sanalsantral",
     "win": {
       "target": "nsis",
-      "icon": "build icon.ico"
+      "icon": "/build/amblem.png"
     },
     "nsis": {
       "createDesktopShortcut": true

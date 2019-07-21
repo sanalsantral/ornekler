@@ -20,7 +20,7 @@ function logla(str) {
     return new Promise((resolve, reject) => {
         let date = new Date(Date.now());
         let formatted_date = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
-        fs.appendFile(path.resolve(__dirname, 'gelenCagrilar.txt'), str + ' ' + formatted_date + '\n', function (err) {
+        fs.appendFile(path.resolve(__dirname, 'gelenCagrilar.txt'), str + ' ' + formatted_date + "\n", function (err) {
             if (err) {
                 reject();
                 return;
@@ -36,7 +36,7 @@ let ws;
 let win
 
 function wsMain(newSocketData) {
-
+    ws = null;
     if (newSocketData.api_key !== '' &&
         newSocketData.dahili_ayrac !== '' &&
         newSocketData.dahili_no !== '' &&
@@ -61,19 +61,50 @@ function wsMain(newSocketData) {
             Object.assign({}, msg, {
                 id: msg.id || randomId,
             });
+        ws.isAlive = true;
         ws.on('open', function open() {
+            let t = new setInterval(() => {
+                if (!ws.isAlive) {
+                    logla('Websocket mefta.');
+                    clearInterval(t);
+                    ws.terminate();
+                    wsMain(newSocketData);
+                }
+            }, 5000);                  
             ws.send(message.msg);
+            setTimeout(function() { 
+                if (ws.readyState === 1) {
+                    ws.isAlive = false;
+                    ws.ping();           
+                }
+            }, 1000);
         });
-        ws.on('message', function incoming(e) {            
+        ws.on('ping', function() {
+            if (ws.readyState === 1) {
+                logla('ping geldi');
+                ws.pong();
+            }
+        });
+        ws.on('pong', function() {
+            ws.isAlive = true;
+            setTimeout(function() {
+                if (ws.readyState === 1) {
+                    ws.isAlive = false;
+                    ws.ping();                
+                }
+            }, 10000);
+            logla('pong geldi');
+        });
+        ws.on('message', function incoming(e) {       
             try {
                 const wssmessage = JSON.parse(JSON.parse(decodeURIComponent(e)).message);
                 if (wssmessage.hata === true) {
                     logla('Hata:' + wssmessage.aciklama);
                 } else {
-                    if (wssmessage.komut === 'giris') {            
+                    if (wssmessage.komut === 'giris') {           
                         logla('Socket bağlantısı sağlandı.');
-                        baglandi=true
-                        win.hide()
+                        baglandi=true;
+                        win.hide();
                     } else if (baglandi && wssmessage.komut === 'arayan') {
                         if (wssmessage.olay === 'dial') {
                             let donus = shell.openItem(`infinia:${wssmessage.arayan}`);
@@ -85,16 +116,24 @@ function wsMain(newSocketData) {
                 }
             } catch (err) {
                 logla('Parse hatası:' + err.message);
-            }
+            } 
+        });
+        ws.on('close', function(e) {
+            //console.log(ws.readyState)
+            ws.terminate();
+            logla('Socket bağlantısı kapandı. Tekrar bağlanıyor...' + JSON.stringify(e));
+            setTimeout(() => {
+                if(ws.readyState===3 || ws.readyState===2){
+                    wsMain(newSocketData);
+                }
+            }, 5000);
         });
         ws.on('error', function (err) {
-            count++;
-            if (count === 3) {
-                dialog.showErrorBox('Hata', 'Soket bağlantısı sağlanamadı. Uygulamayı tekrar çalıştırınız.');
-                count = 0;
-            } else {
+            logla('Socket bağlantısı sağlanamadı. Tekrar deneniyor...');
+            /*
+            setTimeout(() => {
                 wsMain(newSocketData);
-            }
+            }, 1000);*/
         });
     } else {
         dialog.showErrorBox('Hata', 'Ayarlar geçersiz. Lütfen tekrar kontrol ediniz.');
