@@ -19,8 +19,8 @@ let count = 0;
 function logla(str) {
     return new Promise((resolve, reject) => {
         let date = new Date(Date.now());
-        let formatted_date = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
-        fs.appendFile(path.resolve(__dirname, 'gelenCagrilar.txt'), str + ' ' + formatted_date + "\n", function (err) {
+        let formatted_date = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();        
+        fs.appendFile(app.getAppPath() + '\\..\\..\\gelenCagrilar.txt', str + ' ' + formatted_date + "\n", function (err) {
             if (err) {
                 reject();
                 return;
@@ -30,6 +30,7 @@ function logla(str) {
         });
     });
 }
+
 
 let baglandi = false;
 let ws;
@@ -202,6 +203,7 @@ async function main() {
         });
         let bilgiler;
         try {
+
             let data = fs.readFileSync(path.resolve(__dirname, 'info.json'), "utf8");
             if (data === undefined) {
                 win.show();

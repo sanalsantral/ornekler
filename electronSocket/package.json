@@ -10,12 +10,12 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
     "pack:windows": "electron-packager . sanalsantral --platform=win32",
-    "pack:linux":"electron-packager . sanalsantral --platform=linux --arch=x64",
+    "pack:linux": "electron-packager . sanalsantral --platform=linux --arch=x64",
     "dist:windows": "electron-builder --windows",
-    "dist:linux":"electron-builder --linux deb tar.xz"
+    "dist:linux": "electron-builder --linux deb tar.xz"
   },
   "author": {
-    "name":"Sanal Santral",
+    "name": "Sanal Santral",
     "email": "info@sanalsantral.com"
   },
   "license": "ISC",
@@ -30,8 +30,7 @@
     "appId": "com.sanalsantral",
     "win": {
       "target": "nsis",
-      "icon": "build/amblem.png",
-      "files":["!gelenCagrilar.txt"]
+      "icon": "build/amblem.png"
     },
     "nsis": {
       "createDesktopShortcut": true
