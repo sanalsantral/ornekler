@@ -128,13 +128,6 @@ function wsMain(newSocketData) {
                 }
             }, 5000);
         });
-        ws.on('close', function(e) {
-            logla('Socket bağlantısı kapandı. Tekrar bağlanıyor...' + JSON.stringify(e));
-            setTimeout(() => {
-                ws.terminate();
-                wsMain(newSocketData);
-            }, 5000);
-        });
         ws.on('error', function (err) {
             logla('Socket bağlantısı sağlanamadı. Tekrar deneniyor...');
             /*
@@ -165,7 +158,7 @@ async function main() {
             icon: path.resolve(__dirname, 'image', 'amblem32x32.png'),
             show: false
         });
-        win.webContents.openDevTools();
+        // win.webContents.openDevTools();
         const gotTheLock = app.requestSingleInstanceLock()
         await logla('Uygulama başladı.');
         if (!gotTheLock) {
