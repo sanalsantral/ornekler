@@ -15,19 +15,32 @@ const {
 const WebSocket = require('ws');
 let tray = null;
 let count = 0;
+let appPath=app.getAppPath().split('/')
 
 function logla(str) {
     return new Promise((resolve, reject) => {
         let date = new Date(Date.now());
         let formatted_date = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();        
-        fs.appendFile(app.getAppPath() + '\\..\\..\\gelenCagrilar.txt', str + ' ' + formatted_date + "\n", function (err) {
-            if (err) {
-                reject();
+        if( appPath[appPath.length-1]==='electronSocket' || appPath[appPath.length-1]==='app')
+        {
+            fs.appendFile(path.resolve(__dirname, 'gelenCagrilar.txt'), str + ' ' + formatted_date + "\n", function (err) {
+                if (err) {
+                    reject();
+                    return;
+                }
+                resolve();
                 return;
-            }
-            resolve();
-            return;
-        });
+            });
+        }else{
+            fs.appendFile(app.getAppPath() + '\\..\\..\\gelenCagrilar.txt', str + ' ' + formatted_date + "\n", function (err) {
+                if (err) {
+                    reject();
+                    return;
+                }
+                resolve();
+                return;
+            });
+        }
     });
 }
 
