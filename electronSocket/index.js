@@ -14,9 +14,13 @@ const {
 } = require('electron');
 const WebSocket = require('ws');
 let tray = null;
-let count = 0;
-let appPath=app.getAppPath().split('/')
 
+let appPath="";
+if(process.platform === "win32"){
+    appPath=app.getAppPath().split('\\')
+}else{
+    appPath=app.getAppPath().split('/')
+}
 function logla(str) {
     return new Promise((resolve, reject) => {
         let date = new Date(Date.now());
