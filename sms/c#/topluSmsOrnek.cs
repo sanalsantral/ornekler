@@ -1,4 +1,4 @@
-string url = "https://api.sanal.link/api/sms/gonder";
+string url = "https://api.sanal.link/api/sms/blokGonder";
 var request = (HttpWebRequest)WebRequest.Create(url);
 string api_key = "xxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 string sms_id = "332";
