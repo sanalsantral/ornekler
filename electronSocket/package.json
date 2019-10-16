@@ -2,16 +2,22 @@
   "name": "sanalsantral",
   "version": "1.0.0",
   "description": "Sanal Santral",
-  "email": "Sanal Santral",
+  "email": "info@sanalsantral.com",
   "url": "http://www.sanalsantral.com.tr/",
+  "homepage": "http://www.sanalsantral.com.tr/",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
-    "pack": "electron-builder --dir",
-    "dist:windows": "electron-builder --windows"
+    "pack:windows": "electron-packager . sanalsantral --platform=win32",
+    "pack:linux": "electron-packager . sanalsantral --platform=linux --arch=x64",
+    "dist:windows": "electron-builder --windows",
+    "dist:linux": "electron-builder --linux deb tar.xz"
   },
-  "author": "Sanal Santral",
+  "author": {
+    "name": "Sanal Santral",
+    "email": "info@sanalsantral.com"
+  },
   "license": "ISC",
   "dependencies": {
     "ws": "^7.0.0"
@@ -24,7 +30,7 @@
     "appId": "com.sanalsantral",
     "win": {
       "target": "nsis",
-      "icon": "build icon.ico"
+      "icon": "build/amblem.png"
     },
     "nsis": {
       "createDesktopShortcut": true

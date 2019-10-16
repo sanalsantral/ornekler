@@ -14,22 +14,40 @@ const {
 } = require('electron');
 const WebSocket = require('ws');
 let tray = null;
-let count = 0;
 
+let appPath="";
+if(process.platform === "win32"){
+    appPath=app.getAppPath().split('\\')
+}else{
+    appPath=app.getAppPath().split('/')
+}
 function logla(str) {
     return new Promise((resolve, reject) => {
         let date = new Date(Date.now());
-        let formatted_date = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
-        fs.appendFile(path.resolve(__dirname, 'gelenCagrilar.txt'), str + ' ' + formatted_date + '\n', function (err) {
-            if (err) {
-                reject();
+        let formatted_date = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();        
+        if( appPath[appPath.length-1]==='electronSocket' || appPath[appPath.length-1]==='app')
+        {
+            fs.appendFile(path.resolve(__dirname, 'gelenCagrilar.txt'), str + ' ' + formatted_date + "\n", function (err) {
+                if (err) {
+                    reject();
+                    return;
+                }
+                resolve();
                 return;
-            }
-            resolve();
-            return;
-        });
+            });
+        }else{
+            fs.appendFile(app.getAppPath() + '\\..\\..\\gelenCagrilar.txt', str + ' ' + formatted_date + "\n", function (err) {
+                if (err) {
+                    reject();
+                    return;
+                }
+                resolve();
+                return;
+            });
+        }
     });
 }
+
 
 let baglandi = false;
 let ws;
@@ -75,13 +93,15 @@ function wsMain(newSocketData) {
             setTimeout(function() {
                 if (ws.readyState === 1) {
                     ws.isAlive = false;
-                    ws.ping();                
+                    ws.ping();  
                 }
             }, 1000);
         });
         ws.on('ping', function() {
-            logla('ping geldi');
-            ws.pong();
+            if (ws.readyState === 1) {
+                logla('ping geldi');
+                ws.pong();
+            }
         });
         ws.on('pong', function() {
             ws.isAlive = true;
@@ -90,16 +110,16 @@ function wsMain(newSocketData) {
                     ws.isAlive = false;
                     ws.ping();                
                 }
-            }, 30000);
+            }, 10000);
             logla('pong geldi');
         });
-        ws.on('message', function incoming(e) {            
+        ws.on('message', function incoming(e) {       
             try {
                 const wssmessage = JSON.parse(JSON.parse(decodeURIComponent(e)).message);
                 if (wssmessage.hata === true) {
                     logla('Hata:' + wssmessage.aciklama);
                 } else {
-                    if (wssmessage.komut === 'giris') {            
+                    if (wssmessage.komut === 'giris') {           
                         logla('Socket bağlantısı sağlandı.');
                         baglandi=true;
                         win.hide();
@@ -114,13 +134,16 @@ function wsMain(newSocketData) {
                 }
             } catch (err) {
                 logla('Parse hatası:' + err.message);
-            }
+            } 
         });
         ws.on('close', function(e) {
+            //console.log(ws.readyState)
+            ws.terminate();
             logla('Socket bağlantısı kapandı. Tekrar bağlanıyor...' + JSON.stringify(e));
             setTimeout(() => {
-                ws.terminate();
-                wsMain(newSocketData);
+                if(ws.readyState===3 || ws.readyState===2){
+                    wsMain(newSocketData);
+                }
             }, 5000);
         });
         ws.on('error', function (err) {
@@ -153,7 +176,7 @@ async function main() {
             icon: path.resolve(__dirname, 'image', 'amblem32x32.png'),
             show: false
         });
-        win.webContents.openDevTools();
+        // win.webContents.openDevTools();
         const gotTheLock = app.requestSingleInstanceLock()
         await logla('Uygulama başladı.');
         if (!gotTheLock) {
@@ -197,6 +220,7 @@ async function main() {
         });
         let bilgiler;
         try {
+
             let data = fs.readFileSync(path.resolve(__dirname, 'info.json'), "utf8");
             if (data === undefined) {
                 win.show();
