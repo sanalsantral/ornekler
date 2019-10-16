@@ -5,13 +5,13 @@ string sms_id = "332";
 string gidecek_no = "05555555555";
 string mesaj = "deneme";
 
-var postData = "api_key=" + api_key + "&sms_id=" + sms_id + "&gidecek_no=" + gidecek_no + "&mesaj=" + mesaj + "";
+var postData =  "{\"api_key\":\"" + api_key + "\", \"sms_id\":\"" + sms_id + "\", \"bilgiler\": [{\"mesaj\": \"" + mesaj + "\", \"numara\": \"" + gidecek_no + "\"}]}";
 
 var data = Encoding.ASCII.GetBytes(postData);
 
 request.Method = "POST";
 
-            request.ContentType = "application/x-www-form-urlencoded";
+            request.ContentType = "application/json";
 
             request.ContentLength = data.Length;
 
