@@ -10,9 +10,9 @@ const kullaniciBilgiler = {
     sifre:"********",
     printerIp:"***.***.**.***"
 }; 
-```
 
 module.exports = kullaniciBilgiler;
+```
 
 npm install ile kütüphaneler yüklenilir.
 
