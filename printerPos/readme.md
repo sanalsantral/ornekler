@@ -1,11 +1,16 @@
-Yazıcıdan sipariş yazdırılmasını sağlar.Uygulamayı çalıştırmak için repo indirilir.Reponun içine auth.js dosyası oluşturulur.
-Autj.js örneği
+### printerPos
 
+Yazıcıdan sipariş yazdırılmasını sağlar.Uygulamayı çalıştırmak için repo indirilir.Reponun içine auth.js dosyası oluşturulur.
+
+### Örnek Auth.js
+
+```
 const kullaniciBilgiler = {
     ePosta:"*******",
     sifre:"********",
     printerIp:"***.***.**.***"
-};  
+}; 
+```
 
 module.exports = kullaniciBilgiler;
 
