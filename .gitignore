@@ -6,3 +6,5 @@ electronSocket/node_modules/*
 electronSocket/dist/*
 electronSocket/gelenCagrilar.txt
 electronSocket/info.json
+printerPos/node_modules/*
+printerPos/auth.js
