@@ -1,6 +1,6 @@
 ### printerPos
 
-Yazıcıdan sipariş yazdırılmasını sağlar.Uygulamayı çalıştırmak için repo indirilir.Reponun içine auth.js dosyası oluşturulur.
+Yazıcıdan sipariş yazdırılmasını sağlar.Uygulamayı çalıştırmak için repo indirilir.auth.js dosyası eklenir.
 
 ### Örnek Auth.js
 
@@ -14,6 +14,6 @@ const kullaniciBilgiler = {
 module.exports = kullaniciBilgiler;
 ```
 
-npm install ile kütüphaneler yüklenilir.
+npm install komutu ile kütüphaneler yüklenilir.
 
-Terminalden node index.js ile uygulama çalıştırılır.
+Terminalden node index.js komutu ile uygulama çalıştırılır.
