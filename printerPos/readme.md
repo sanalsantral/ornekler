@@ -1,6 +1,6 @@
 ### printerPos
 
-Yazıcıdan sipariş yazdırılmasını sağlar.Uygulamayı çalıştırmak için repo indirilir.auth.js dosyası eklenir.
+Yazıcıdan sipariş yazdırılmasını sağlar.Uygulamayı çalıştırmak için repo indirilir ve auth.js dosyası eklenir.
 
 ### Örnek Auth.js
 
