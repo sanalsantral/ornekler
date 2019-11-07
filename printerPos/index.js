@@ -42,14 +42,9 @@ function print(ip, detay) {
 }
 
 async function islemler(Kisidata) {
-    const result = await axios.post('https://reyhanpastanesi.bulut4.com/func/login/mobilGiris', {
+    const result = await axios.post('https://reyhanpastanesi.bulut4.com/func/login/girisToken', {
             ePosta: Kisidata.ePosta,
             sifre: Kisidata.sifre,                         
-            app_id: 'com.b4mobile',
-            uygulama_adi: 'bulut4 CRM',
-            cihaz: 'Possify Termal Yazıcı',
-            surum: '9.9.999',
-            platform: 'Android',
         }, {
             headers:headers
         });
