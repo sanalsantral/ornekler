@@ -5,14 +5,15 @@ const {
     Tray,
     Menu,
     ipcMain,
-    dialog
+    dialog,
+    shell,
+    ipcRenderer,
 } = require('electron');
 const fs = require('fs');
 const url = require('url');
-const {
-    shell
-} = require('electron');
+const axios = require('axios');
 const WebSocket = require('ws');
+const moment = require('moment');
 let tray = null;
 
 let appPath="";
@@ -48,6 +49,16 @@ function logla(str) {
     });
 }
 
+let knex = require("knex")({
+    client: "sqlite3",
+    connection: {
+        filename: path.join(__dirname, 'cdr')
+    },
+    useNullAsDefault: true,
+    pool: {
+        max: 1,
+    },
+});
 
 let baglandi = false;
 let ws;
@@ -122,7 +133,8 @@ function wsMain(newSocketData) {
                     if (wssmessage.komut === 'giris') {           
                         logla('Socket bağlantısı sağlandı.');
                         baglandi=true;
-                        win.hide();
+                        // win.hide();
+                        win.show();
                     } else if (baglandi && wssmessage.komut === 'arayan') {
                         if (wssmessage.olay === 'dial') {
                             let donus = shell.openItem(`infinia:${wssmessage.arayan}`);
@@ -158,6 +170,135 @@ function wsMain(newSocketData) {
     }
 }
 
+async function getRecord(slicedStr,arg,suan,kisim){
+    let index=0
+    for (let instance of slicedStr) {
+        if(instance.ses_var){
+            await axios.get(`https://api.sanal.link/api/cdr/download/${instance.linkedid}/?api_key=${arg.api_key}&santral_id=${arg.santral_id}`)
+            .then(res => {
+                index++;
+                let yuzde=index/slicedStr.length;
+                obj={
+                    yuzde:yuzde,
+                    kisim:kisim,
+                    suan:suan
+                }
+                win.webContents.send('progress',obj)
+                knex('record').insert({unique_id: instance.unique_id,data:res.data}).then((res)=>{
+                    knex('cdr').insert(instance)
+                    console.log("data çekildi.")
+                }).catch(()=>{
+                    dialog.showErrorBox('Hata','Kayıtlar çekilirken hata oluştu')
+                })
+            }).catch((err)=>{
+                obj={
+                    yuzde:1,
+                    kisim:1,
+                    suan:1
+                }
+                win.webContents.send('progress',1)
+                console.log(err)
+            })
+        }else{
+            index++;
+            let yuzde=index/slicedStr.length;
+            obj={
+                yuzde:yuzde,
+                kisim:kisim,
+                suan:suan
+            }
+            win.webContents.send('progress',obj)
+        }
+    }
+}
+
+function getCdr(arg){
+        let data = fs.readFileSync(path.resolve(__dirname, 'info.json'), "utf8");
+        arg.api_key=JSON.parse(data).api_key
+        arg.santral_id=JSON.parse(data).santral_id
+        let diff =  Math.floor(( Date.parse(arg.bitis_tarih) - Date.parse(arg.baslangic_tarih) ) / 86400000); 
+        if(diff>31) {
+            dialog.showErrorBox('Hata','1 aydan fazla çağrı geçmişi getiremezsiniz')
+        }else{
+            axios.get(`https://api.sanal.link/api/cdr/basit?api_key=${arg.api_key}&santral_id=${arg.santral_id}&baslangic_tarih=${arg.baslangic_tarih}&bitis_tarih=${arg.bitis_tarih}`)
+            .then(async response => {
+              if(response.data.sayfa_sayisi > 1 && response.data.durum){
+                  for( i = 0; i < response.data.sayfa_sayisi; i++){
+                      await axios.get(`https://api.sanal.link/api/cdr/basit?api_key=${arg.api_key}&santral_id=${arg.santral_id}&baslangic_tarih=${arg.baslangic_tarih}&bitis_tarih=${arg.bitis_tarih}&sayfa=${i}`)
+                      .then(async res=> {
+                          let slicedStr = res.data.sonuclar.slice(0, 3);
+                          await getRecord(slicedStr,arg,i+1,response.data.sayfa_sayisi).then(()=>{
+                              if(i+1 === response.data.sayfa_sayisi){
+                                obj={
+                                    yuzde:1,
+                                    kisim:response.data.sayfa_sayisi,
+                                    suan:response.data.sayfa_sayisi
+                                }
+                                win.webContents.send('progress',obj)
+                                dialog.showMessageBox(null, {
+                                    type: 'info',
+                                    buttons: ['Tamam'],
+                                    defaultId: 1,
+                                    title: 'Bilgilendirme',
+                                    message: 'Çağrı geçmişi başarılı bir şekilde çekildi.'
+                                    }, (response) => {
+                                    console.log(response);
+                                    });
+                              }
+                          })
+                      })
+                  }
+              }else{
+                if(response.data.durum){
+                    let slicedStr = response.data.sonuclar.slice(0, 3);
+                    await getRecord(slicedStr,arg,1,1).then(()=>{
+                        console.log("Kaydedildi.")
+                        dialog.showMessageBox(null, {
+                            type: 'info',
+                            buttons: ['Tamam'],
+                            defaultId: 1,
+                            title: 'Bilgilendirme',
+                            message: 'Çağrı geçmişi başarılı bir şekilde çekildi.'
+                        }, (response) => {
+                        console.log(response);
+                        });
+                    })
+                }else{
+                    dialog.showErrorBox('Hata','Kayıt Yok')
+                    win.webContents.send('progressDelete')
+                }
+              }
+            }).catch(error => {
+                dialog.showErrorBox('Hata','Kayıtlar çekilirken hata oluştu')
+                win.webContents.send('progressDelete')
+                console.log(error);
+            });
+        }
+}
+
+function deleteCdr(){
+    knex('record').del().then(rs=>{
+        console.log(rs)
+    })
+    knex('cdr')
+    .del()
+    .then(res=>{
+        console.log("Kayıtlar başarıyla silindi.")
+        dialog.showMessageBox(null, {
+            type: 'info',
+            buttons: ['Tamam'],
+            defaultId: 1,
+            title: 'Bilgilendirme',
+            message: 'Çağrı geçmişi başarılı bir silindi'
+        }, (response) => {
+        console.log(response);
+        })
+    })
+    .catch(err=>{
+        console.log(err)
+    })
+}
+
 let newSocketData = "";
 
 async function main() {
@@ -167,7 +308,7 @@ async function main() {
             path: app.getPath('exe')
         })
         win = new BrowserWindow({
-            width: 400,
+            width: 600,
             height: 650,
             webPreferences: {
                 nodeIntegration: true
@@ -176,7 +317,7 @@ async function main() {
             icon: path.resolve(__dirname, 'image', 'amblem32x32.png'),
             show: false
         });
-        // win.webContents.openDevTools();
+        win.webContents.openDevTools();
         const gotTheLock = app.requestSingleInstanceLock()
         await logla('Uygulama başladı.');
         if (!gotTheLock) {
@@ -218,9 +359,14 @@ async function main() {
             wsMain(arg);
             if (baglandi) ws.close();
         });
+        ipcMain.on('getCdr', (event,arg) =>{ 
+            getCdr(arg)
+        });
+        ipcMain.on('deleteCdr',(event,arg) =>{
+            deleteCdr()
+        })
         let bilgiler;
         try {
-
             let data = fs.readFileSync(path.resolve(__dirname, 'info.json'), "utf8");
             if (data === undefined) {
                 win.show();
@@ -230,7 +376,8 @@ async function main() {
                     event.sender.send('infoRes', bilgiler);
                 });
                 wsMain(bilgiler);
-                win.hide();
+                //win.hide();
+                win.show();
             }
         } catch (err) {
             await logla('Dosya okunurken hata oluştu:' + err.message);

@@ -9,6 +9,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
+    "rebuild": "electron-rebuild -f -w sqlite3",
+    "postinstall": "install-app-deps",
     "pack:windows": "electron-packager . sanalsantral --platform=win32",
     "pack:linux": "electron-packager . sanalsantral --platform=linux --arch=x64",
     "dist:windows": "electron-builder --windows",
@@ -20,6 +22,11 @@
   },
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.19.0",
+    "jquery": "^3.4.1",
+    "knex": "^0.20.3",
+    "moment": "^2.24.0",
+    "sqlite3": "^4.1.0",
     "ws": "^7.0.0"
   },
   "devDependencies": {
