@@ -103,15 +103,21 @@ async function fileCopy(arg){
                 console.log("dosya oluşturuldu")
                 let copyPath=`${moment(arg.baslangic_tarih).format('DD.MM.YYYY')}-${moment(arg.bitis_tarih).format('DD.MM.YYYY')}`
                 let src 
+                let dbSrc
                 let dist = path.join(__dirname,`${copyPath}/kayitDinle`);
+                let dbDist = path.join(__dirname,`${copyPath}`);
                 if (process.platform === 'linux') {
                     src = path.join(__dirname,'/sanalsantral-linux-x64/');
+                    dbSrc = path.join(__dirname,'/db/');
                     shellJs.cp('-R', src, dist);
+                    shellJs.cp('-R', dbSrc, dbDist);
                     console.log("Dinleme app copy")
                     // dialog.showErrorBox("Uyarı","Dinleme Uygulaması Kopyalandı.");
                 } else {
                     src = path.join(__dirname,'/sanalsantral-win32-x64/');
+                    dbSrc = path.join(__dirname,'/db/');
                     shellJs.cp('-R',src, dist);
+                    shellJs.cp('-R', dbSrc, dbDist);
                     dialog.showErrorBox("Uyarı","Dinleme Uygulaması Kopyalandı.");s
                 } 
             })
@@ -249,7 +255,7 @@ async function getRecord(slicedStr,arg,suan,kisim){
                 }
                 win.webContents.send('progress',obj)
                 let conn = {
-                    filename: path.join(__dirname,`/${yol}/${yol}.db`)
+                    filename: path.join(__dirname,`${yol}/db/cdr.db`)
                   };
                 let knex = require('knex')
                 ({ 
@@ -296,7 +302,7 @@ async function getCdr(arg){
             dialog.showErrorBox('Hata','1 aydan fazla çağrı geçmişi getiremezsiniz')
         }else{
             await fileCopy(arg)
-            await createDatabase(arg)
+            // await createDatabase(arg)
             await axios.get(`https://api.sanal.link/api/cdr/basit?api_key=${arg.api_key}&santral_id=${arg.santral_id}&baslangic_tarih=${arg.baslangic_tarih}&bitis_tarih=${arg.bitis_tarih}`)
             .then(async response => {
                 console.log("Cdr istek attı.")
