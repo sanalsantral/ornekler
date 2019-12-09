@@ -118,7 +118,7 @@ async function fileCopy(arg){
                     dbSrc = path.join(__dirname,'/db/');
                     shellJs.cp('-R',src, dist);
                     shellJs.cp('-R', dbSrc, dbDist);
-                    dialog.showErrorBox("Uyarı","Dinleme Uygulaması Kopyalandı.");s
+                    dialog.showErrorBox("Uyarı","Dinleme Uygulaması Kopyalandı.");
                 } 
             })
     })
@@ -303,11 +303,12 @@ async function getCdr(arg){
         if(diff > 31) {
             dialog.showErrorBox('Hata','1 aydan fazla çağrı geçmişi getiremezsiniz')
         }else{
-            await fileCopy(arg)
-            // await createDatabase(arg)
-            
-                let response = await axios.get(`https://api.sanal.link/api/cdr/basit?api_key=${arg.api_key}&santral_id=${arg.santral_id}&baslangic_tarih=${arg.baslangic_tarih}&bitis_tarih=${arg.bitis_tarih}`)
             try {
+                await fileCopy(arg)
+                // await createDatabase(arg)
+                
+                let response = await axios.get(`https://api.sanal.link/api/cdr/basit?api_key=${arg.api_key}&santral_id=${arg.santral_id}&baslangic_tarih=${arg.baslangic_tarih}&bitis_tarih=${arg.bitis_tarih}`)
+            
                 console.log("Cdr istek attı.")
                 // dialog.showErrorBox("Uyarı",`burdamı`);
                 // console.log(response)
@@ -317,34 +318,34 @@ async function getCdr(arg){
                         try {
                         
                             //let slicedStr = res.data.sonuclar.slice(0, 3);
-                            await getRecord(res.data.sonuclar,arg,i+1,response.data.sayfa_sayisi).then(()=>{
-                                if(i+1 === response.data.sayfa_sayisi){
-                                    obj = {
-                                        yuzde:1,
-                                        kisim:response.data.sayfa_sayisi,
-                                        suan:response.data.sayfa_sayisi
-                                    }
-                                    // win.webContents.send('progress',obj)
-                                    win.webContents.send('progressFinish',obj)
-                                    dialog.showMessageBox(null, {
-                                        type: 'info',
-                                        buttons: ['Tamam'],
-                                        defaultId: 1,
-                                        title: 'Bilgilendirme',
-                                        message: 'Çağrı geçmişi başarılı bir şekilde çekildi.'
-                                    }, (response) => {
-                                        console.log(response);
-                                    });
+                            await getRecord(res.data.sonuclar,arg,i+1,response.data.sayfa_sayisi)
+                            if(i+1 === response.data.sayfa_sayisi){
+                                obj = {
+                                    yuzde:1,
+                                    kisim:response.data.sayfa_sayisi,
+                                    suan:response.data.sayfa_sayisi
                                 }
-                            })
+                                // win.webContents.send('progress',obj)
+                                win.webContents.send('progressFinish',obj)
+                                dialog.showMessageBox(null, {
+                                    type: 'info',
+                                    buttons: ['Tamam'],
+                                    defaultId: 1,
+                                    title: 'Bilgilendirme',
+                                    message: 'Çağrı geçmişi başarılı bir şekilde çekildi.'
+                                }, (response) => {
+                                    console.log(response);
+                                });
+                            }
                         }catch (err){
                             console.log("Cdrlar cekilemedi.")
                         }
                     }
                 }else{
                     if(response.data.durum){
+                        try {
                         // let slicedStr = response.data.sonuclar.slice(0, 3);
-                        getRecord(response.data.sonuclar,arg,1,1).then(()=>{
+                        await getRecord(response.data.sonuclar,arg,1,1)
                         // console.log("Kaydedildi.")
                         win.webContents.send('progressFinish',obj)
                             dialog.showMessageBox(null, {
@@ -356,16 +357,18 @@ async function getCdr(arg){
                             }, (response) => {
                             console.log(response);
                             });
-                        })
+                        }catch (err){
+                            console.log("Cdrlar cekilemedi.")
+                        }
                     }else{
                         dialog.showErrorBox('Hata','Kayıt Yok')
                         win.webContents.send('progressDelete')
                     }
                 }
-            }catch(error){
+            }catch(err){
                 dialog.showErrorBox('Hata','Kayıtlar çekilirken hata oluştu')
                 win.webContents.send('progressDelete')
-                console.log(error);
+                console.log(err);
             }
         }
 }
