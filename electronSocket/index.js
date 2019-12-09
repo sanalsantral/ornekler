@@ -53,9 +53,10 @@ function logla(str) {
 }
 
 async function createDatabase(arg) {
+    try{
         let yol=`${moment(arg.baslangic_tarih).format('DD.MM.YYYY')}-${moment(arg.bitis_tarih).format('DD.MM.YYYY')}`
         let conn = {
-            filename: path.join(__dirname,`/${yol}/${yol}`)
+            filename: path.join(__dirname,`/${yol}/${yol}.db`)
         };
         let knex = require('knex')
         ({ 
@@ -65,9 +66,12 @@ async function createDatabase(arg) {
             pool: {
                 min: 1,
                 max: 3,
-            }
-        });
+            }        });
+       await knex.schema.raw('CREATE TABLE `cdr` (`cagri_yonu`	varchar ( 255 ),`caller_id`	varchar ( 255 ),`cevaplayanlar`	varchar ( 255 ),`defter_adi`	varchar ( 255 ),`durum`	varchar ( 255 ),`hedef`	varchar ( 255 ),`kaynak`	varchar ( 255 ),`linkedid`	varchar ( 255 ),`ses_var`	boolean,`sure`	integer,`unique_id`	integer,`zaman`	varchar ( 255 ));')
+
+        /*
         await knex.schema.createTable('cdr', (table) => {
+            console.log("table")
             table.string('cagri_yonu')
             table.string('caller_id')
             table.string('cevaplayanlar')
@@ -80,15 +84,16 @@ async function createDatabase(arg) {
             table.integer('sure')
             table.integer('unique_id')
             table.string('zaman')
-        }).then(()=>{
+        })
+        */
             // dialog.showErrorBox("Uyarı","Tablo Oluşturuldu");
             console.log("tablo oluşturuldu")
-        }).catch(()=>{
+        }catch(err){
             knex('cdr').del().then(()=>{
                 // dialog.showErrorBox("Uyarı","Tablo Oluşturuldu.");
                 console.log("tablodaki veriler başarılı bir şekilde silindi.")
             })
-        })
+        }
 }
 
 async function fileCopy(arg){
@@ -244,13 +249,13 @@ async function getRecord(slicedStr,arg,suan,kisim){
                 }
                 win.webContents.send('progress',obj)
                 let conn = {
-                    filename: path.join(__dirname,`/${yol}/${yol}`)
+                    filename: path.join(__dirname,`/${yol}/${yol}.db`)
                   };
                 let knex = require('knex')
                 ({ 
                    client: 'sqlite3',
                    connection:conn, 
-                   useNullAsDefault: true ,
+                   useNullAsDefault: true,
                    pool: {
                     min: 1,
                     max: 3,
