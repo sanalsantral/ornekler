@@ -239,39 +239,41 @@ async function getRecord(slicedStr,arg,suan,kisim){
     let index=0
     for (let instance of slicedStr) {
         /*if(instance.ses_var){*/
-            await axios({
-                method: "get",
-                url: `https://api.sanal.link/api/cdr/download/${instance.linkedid}/?api_key=${arg.api_key}&santral_id=${arg.santral_id}`,
-                responseType: "stream"
-            }).then(function (response) {
-                response.data.pipe(fs.createWriteStream(path.resolve(__dirname,`./${moment(arg.baslangic_tarih).format('DD.MM.YYYY')}-${moment(arg.bitis_tarih).format('DD.MM.YYYY')}/sesler/${instance.linkedid}.wav`)));
-                let yol = `./${moment(arg.baslangic_tarih).format('DD.MM.YYYY')}-${moment(arg.bitis_tarih).format('DD.MM.YYYY')}`
-                index++;
-                let yuzde=index/slicedStr.length;
-                obj = {
-                    yuzde:yuzde,
-                    kisim:kisim,
-                    suan:suan
-                }
-                win.webContents.send('progress',obj)
-                let conn = {
-                    filename: path.join(__dirname,`${yol}/db/cdr.db`)
-                  };
-                let knex = require('knex')
-                ({ 
-                   client: 'sqlite3',
-                   connection:conn, 
-                   useNullAsDefault: true,
-                   pool: {
-                    min: 1,
-                    max: 3,
-                }});
-                knex('cdr').insert(instance).then(res=>{
-                    console.log(res)
-                }).catch((err)=>{
-                    console.log(err)
-                })
-            }).catch((err)=>{
+            try {
+                    let response = await axios({
+                        method: "get",
+                        url: `https://api.sanal.link/api/cdr/download/${instance.linkedid}/?api_key=${arg.api_key}&santral_id=${arg.santral_id}`,
+                        responseType: "stream"
+                    }) 
+                
+                    response.data.pipe(fs.createWriteStream(path.resolve(__dirname,`./${moment(arg.baslangic_tarih).format('DD.MM.YYYY')}-${moment(arg.bitis_tarih).format('DD.MM.YYYY')}/sesler/${instance.linkedid}.wav`)));
+                    let yol = `./${moment(arg.baslangic_tarih).format('DD.MM.YYYY')}-${moment(arg.bitis_tarih).format('DD.MM.YYYY')}`
+                    index++;
+                    let yuzde=index/slicedStr.length;
+                    obj = {
+                        yuzde:yuzde,
+                        kisim:kisim,
+                        suan:suan
+                    }
+                    win.webContents.send('progress',obj)
+                    let conn = {
+                        filename: path.join(__dirname,`${yol}/db/cdr.db`)
+                    };
+                    let knex = require('knex')
+                    ({ 
+                    client: 'sqlite3',
+                    connection:conn, 
+                    useNullAsDefault: true,
+                    pool: {
+                        min: 1,
+                        max: 3,
+                    }});
+                    knex('cdr').insert(instance).then(res=>{
+                        console.log(res)
+                    }).catch((err)=>{
+                        console.log(err)
+                    })
+            }catch(err){
                 obj={
                     yuzde:1,
                     kisim:1,
@@ -279,7 +281,7 @@ async function getRecord(slicedStr,arg,suan,kisim){
                 }
                 win.webContents.send('progress',1)
                 console.log(err)
-            })
+            }
         /*}else{
             index++;
             let yuzde=index/slicedStr.length;
@@ -303,15 +305,17 @@ async function getCdr(arg){
         }else{
             await fileCopy(arg)
             // await createDatabase(arg)
-            await axios.get(`https://api.sanal.link/api/cdr/basit?api_key=${arg.api_key}&santral_id=${arg.santral_id}&baslangic_tarih=${arg.baslangic_tarih}&bitis_tarih=${arg.bitis_tarih}`)
-            .then(async response => {
+            
+                let response = await axios.get(`https://api.sanal.link/api/cdr/basit?api_key=${arg.api_key}&santral_id=${arg.santral_id}&baslangic_tarih=${arg.baslangic_tarih}&bitis_tarih=${arg.bitis_tarih}`)
+            try {
                 console.log("Cdr istek attı.")
                 // dialog.showErrorBox("Uyarı",`burdamı`);
                 // console.log(response)
                 if(response.data.sayfa_sayisi > 1 && response.data.durum){
                     for(i = 0; i < response.data.sayfa_sayisi; i++){
-                        await axios.get(`https://api.sanal.link/api/cdr/basit?api_key=${arg.api_key}&santral_id=${arg.santral_id}&baslangic_tarih=${arg.baslangic_tarih}&bitis_tarih=${arg.bitis_tarih}&sayfa=${i}`)
-                        .then(async res => {
+                        let res = await axios.get(`https://api.sanal.link/api/cdr/basit?api_key=${arg.api_key}&santral_id=${arg.santral_id}&baslangic_tarih=${arg.baslangic_tarih}&bitis_tarih=${arg.bitis_tarih}&sayfa=${i}`)
+                        try {
+                        
                             //let slicedStr = res.data.sonuclar.slice(0, 3);
                             await getRecord(res.data.sonuclar,arg,i+1,response.data.sayfa_sayisi).then(()=>{
                                 if(i+1 === response.data.sayfa_sayisi){
@@ -332,8 +336,10 @@ async function getCdr(arg){
                                         console.log(response);
                                     });
                                 }
-                        })
-                        })
+                            })
+                        }catch (err){
+                            console.log("Cdrlar cekilemedi.")
+                        }
                     }
                 }else{
                     if(response.data.durum){
@@ -356,11 +362,11 @@ async function getCdr(arg){
                         win.webContents.send('progressDelete')
                     }
                 }
-            }).catch(error => {
+            }catch(error){
                 dialog.showErrorBox('Hata','Kayıtlar çekilirken hata oluştu')
                 win.webContents.send('progressDelete')
                 console.log(error);
-            });
+            }
         }
 }
 
