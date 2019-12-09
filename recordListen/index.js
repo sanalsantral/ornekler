@@ -1,4 +1,4 @@
-const { app ,BrowserWindow ,ipcMain ,ipcRenderer ,dialog} = require('electron');
+const { app ,BrowserWindow ,ipcMain ,ipcRenderer ,dialog } = require('electron');
     const fs = require('fs');
     const path = require('path');
     const moment = require('moment');
@@ -12,7 +12,7 @@ const { app ,BrowserWindow ,ipcMain ,ipcRenderer ,dialog} = require('electron');
         if (err)
         throw err;
         for (var index in files) {
-            if(files[index].includes(".") && files[index].includes("-")){
+            if(files[index].includes("db")){
                 connectUrl=path.join(__dirname,`./../../../${files[index]}`)
             }else if(files[index].includes("sesler")){
                 fetchUrl=path.join(__dirname,`./../../../${files[index]}`)
@@ -27,7 +27,7 @@ const { app ,BrowserWindow ,ipcMain ,ipcRenderer ,dialog} = require('electron');
         knex = require("knex")({
             client: "sqlite3",
             connection: {
-                filename: connectUrl
+                filename: `${connectUrl}/cdr.db`
             },
             useNullAsDefault: true,
             pool: {
@@ -82,9 +82,7 @@ const { app ,BrowserWindow ,ipcMain ,ipcRenderer ,dialog} = require('electron');
         });
         ipcMain.on('getFilter',(event,arg) =>{
             let baslangic = Date.parse(arg.baslangic_tarih)
-
             let bitis = Date.parse(arg.bitis_tarih)
-            console.log(baslangic+"  "+bitis)
             let filter = []
             cdr.map(arama=>{
                 var date = arama.zaman.split(".");
@@ -100,7 +98,6 @@ const { app ,BrowserWindow ,ipcMain ,ipcRenderer ,dialog} = require('electron');
                         filter.push(arama)
                     }
                 }
-                
             })
             if(filter.length !== 0){
                 win.webContents.send('getFilterRes', filter);
@@ -110,8 +107,6 @@ const { app ,BrowserWindow ,ipcMain ,ipcRenderer ,dialog} = require('electron');
         })
         
     }
-
-
 
     app.on('ready', main);
 

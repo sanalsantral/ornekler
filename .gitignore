@@ -16,3 +16,5 @@ electronSocket/sanalsantral-linux-x64
 electronSocket/sanalsantralSocket-linux-x64
 electronSocket/sanalsantralSocket-wi32-x64
 electronSocket/**/kayitDinle
+electronSocket/**/db
+electronSocket/**/sesler
