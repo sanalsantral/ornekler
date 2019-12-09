@@ -96,7 +96,8 @@ async function createDatabase(arg) {
         }
 }
 
-async function fileCopy(arg){
+function fileCopy(arg){
+    return new Promise ((resolve,reject)=>{
         fs.mkdir(path.resolve(__dirname,`${moment(arg.baslangic_tarih).format('DD.MM.YYYY')}-${moment(arg.bitis_tarih).format('DD.MM.YYYY')}`),function(){
             console.log("dosya oluşturuldu")
             fs.mkdir(path.resolve(__dirname,`${moment(arg.baslangic_tarih).format('DD.MM.YYYY')}-${moment(arg.bitis_tarih).format('DD.MM.YYYY')}/sesler`),function(){
@@ -112,6 +113,7 @@ async function fileCopy(arg){
                     shellJs.cp('-R', src, dist);
                     shellJs.cp('-R', dbSrc, dbDist);
                     console.log("Dinleme app copy")
+                    resolve()
                     // dialog.showErrorBox("Uyarı","Dinleme Uygulaması Kopyalandı.");
                 } else {
                     src = path.join(__dirname,'/sanalsantral-win32-x64/');
@@ -119,10 +121,11 @@ async function fileCopy(arg){
                     shellJs.cp('-R',src, dist);
                     shellJs.cp('-R', dbSrc, dbDist);
                     dialog.showErrorBox("Uyarı","Dinleme Uygulaması Kopyalandı.");
+                    resolve()
                 } 
             })
+        })
     })
-    
 }
 
 let baglandi = false;
@@ -306,10 +309,7 @@ async function getCdr(arg){
             try {
                 await fileCopy(arg)
                 // await createDatabase(arg)
-                
                 let response = await axios.get(`https://api.sanal.link/api/cdr/basit?api_key=${arg.api_key}&santral_id=${arg.santral_id}&baslangic_tarih=${arg.baslangic_tarih}&bitis_tarih=${arg.bitis_tarih}`)
-            
-                console.log("Cdr istek attı.")
                 // dialog.showErrorBox("Uyarı",`burdamı`);
                 // console.log(response)
                 if(response.data.sayfa_sayisi > 1 && response.data.durum){
