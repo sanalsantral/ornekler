@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html> 
+    <head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <style>
+            #parent {
+                display: flex;
+                margin: 10px;
+            }
+            #filterButton {
+                margin-left: 10px;
+            }
+            #main {
+                display: flex;
+                flex-direction: row;
+                margin: 10px;
+            }
+            #text {
+                margin-right: 10px;
+                margin-left: 10px;
+                margin-top: 16px;
+                text-align: center;
+            }
+            #bitisDate {
+                border-width: 0px;
+            }
+            #baslangicDate {
+                border-width: 0px;
+            }
+            #progress {
+                margin: 15px;
+                display: none;
+            }
+            #text2 {
+                text-align: center;
+                display: none;
+            }
+            #durum {
+                margin-left: 10px;
+                width: 250px;
+            }
+            h2.headerText {
+                text-align: center;
+            }
+            .my-custom-scrollbar {
+                position: relative;
+                height: auto;
+                overflow: auto;
+                margin: 15px;
+            }
+            .table-wrapper-scroll-y {
+                display: block;
+                height: 650px;
+            }
+        </style>
+    </head>
+<body>
+    <script>
+      let ipc = require('electron').ipcRenderer;
+      const moment = require('moment');
+      ipc.send("ready","çalistir")
+      function durumSec () {
+        let durum = ""
+        durum = document.getElementById("durum").value
+        //console.log(durum)
+      }
+      function getFilter() {
+        let filterData = {
+            baslangic_tarih: "",
+            bitis_tarih: "",
+            durum: "",
+        }
+        $("#myTable > tbody").empty();
+        filterData.baslangic_tarih = document.getElementById("baslangicDate").value
+        filterData.bitis_tarih = document.getElementById("bitisDate").value
+        filterData.durum = document.getElementById("durum").value
+        filterData.baslangic_tarih = moment(filterData.baslangic_tarih, 'YYYY-MM-DD').subtract(1,'day').format('YYYY-MM-DD')
+        // filterData.bitis_tarih = moment(filterData.bitis_tarih).format('DD-MM-YYYY HH:mm')*/ 
+        //console.log(filterData)
+        ipc.send("getFilter",filterData)
+      }
+      ipc.on('getFilterRes',(event,arg) => {
+          //console.log(arg)
+          arg.forEach(function(item) {
+               $("#myTable").find('tbody')
+               .append($('<tr id="myTableRow">')
+                   .append($('<td>')
+                       .append(item.unique_id)
+                   )
+                   .append($('<td>')
+                       .append(item.cevaplayanlar)
+                   )
+                   .append($('<td>')
+                       .append(item.durum)
+                   )
+                   .append($('<td>')
+                       .append(item.zaman)
+                   )
+                   .append($('<td>')
+                       .append( `<audio controls>
+                                    <source src="file:${item.url}" type="audio/wav">
+                                </audio>`
+                              )            
+                    )
+               );
+           })
+      })  
+    </script>
+        <div>
+            <div id="main">
+                <p id="text">Başlangıç Tarihi Seçiniz:</p>
+                <input type="date" name="bday" id="baslangicDate" max="2019-12-31">
+            </div>
+            <div id="main">
+                <p id="text">Bitiş Tarihi Seçiniz:</p> 
+                <input type="date" name="bday" id="bitisDate" max="2019-12-31">
+            </div>
+            <select class="browser-default custom-select" id="durum" onclick=durumSec()>
+                <option value="Hepsi">Hepsi</option>
+                <option value="Cevaplandı">Cevaplandı</option>
+                <option value="Cevaplanmadı">Cevaplanmadı</option>
+            </select>
+            <div id="parent">
+              <div id="filterButton">
+                  <button class="btn btn-success" id="getFilter" onclick="getFilter()">Filtrele</button>
+              </div>
+            </div>
+            <h2 class="headerText">Çağrı Listesi</h2>
+            <div class="table-wrapper-scroll-y my-custom-scrollbar">
+                <table id="myTable" class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Unique Id</th>
+                        <th scope="col">Cevaplayan</th>
+                        <th scope="col">Durum</th>
+                        <th scope="col">Zaman</th>
+                        <th scope="col">Ses</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+</body>
+<script>window.$ = window.jQuery = require('jquery');</script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</html>

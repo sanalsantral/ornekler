@@ -9,3 +9,10 @@ electronSocket/info.json
 electronSocket/cdr
 printerPos/node_modules/*
 printerPos/auth.js
+electronSocket/recordListen/node_modules/*
+recordListen/node_modules/*
+electronSocket/sanalsantral-win32-x64
+electronSocket/sanalsantral-linux-x64
+electronSocket/sanalsantralSocket-linux-x64
+electronSocket/sanalsantralSocket-wi32-x64
+electronSocket/**/kayitDinle

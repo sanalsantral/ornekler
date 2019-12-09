@@ -10,17 +10,21 @@
                 display: flex;
                 flex-direction: row;
                 margin-bottom: 10px;
+                margin: 10px;
+            }
+            #getCdr {
+                margin: 10px;
             }
             #text {
-                margin-top: 10px;
+                margin-top: 16px;
                 margin-right: 10px;
                 align-items: center;
             }
             #bitisDate {
-                border-width: 1px;
+                border-width: 0px;
             }
             #baslangicDate {
-                border-width: 1px;
+                border-width: 0px;
             }
             #progress {
                 margin: 15px;
@@ -58,7 +62,7 @@
             }
             requestCdrProps.baslangic_tarih=document.getElementById("baslangicDate").value
             requestCdrProps.bitis_tarih=document.getElementById("bitisDate").value
-            console.log(requestCdrProps)
+             // console.log(requestCdrProps)
             $('#progress').css('display','inline-block');
             $('.progress').css('display','-webkit-box');
             $('.progress').css('display','-ms-flexbox');
@@ -82,8 +86,14 @@
             ipcRenderer.send("deleteCdr")
         }
         ipcRenderer.on('progress',(event, args) => {
-            console.log(args) 
-            $("#text2").html(args.suan+"/"+args.kisim+" Yükleniyor "+ (args.yuzde*100).toFixed(2) + "%")
+            // console.log(args) 
+            $("#text2").html(args.suan+"/"+args.kisim+" Sayfa Yükleniyor "+ (args.yuzde*100).toFixed(2) + "%")
+            $(document).ready(function() {
+                $('#progressBar').css('width', args.yuzde*100 + "%").css('display','inline-block');
+            });
+        })
+        ipcRenderer.on('progressFinish',(event, args) => {
+            $("#text2").html(args.suan+"/"+args.kisim+" Sayfa Yüklendi "+ (args.yuzde*100).toFixed(2) + "%")
             $(document).ready(function() {
                 $('#progressBar').css('width', args.yuzde*100 + "%").css('display','inline-block');
             });
@@ -91,39 +101,6 @@
         ipcRenderer.on('progressDelete',(event, args) => {
             $('#progress').css('display','none');
             $('#text2').css('display','none'); 
-        })
-        ipcRenderer.on('cdrList', (event, args) => {
-            console.log(args)
-            args.forEach(function(item) {
-                console.log(item)
-                $("#myTable").find('tbody')
-                .append($('<tr>')
-                    .append($('<td>')
-                        .append(item.zaman)
-                    )
-                    .append($('<td>')
-                        .append(item.kaynak)
-                    )
-                    .append($('<td>')
-                        .append(item.hedef)
-                    )
-                    .append($('<td>')
-                        .append(item.sure)
-                    )
-                    .append($('<td>')
-                        .append(item.cevaplayanlar)
-                    )
-                    .append($('<td>')
-                        .append(item.ses_var === 1 ? "Var" : "Yok")
-                    )
-                    .append($('<td>')
-                        .append(item.durum)
-                    )
-                    .append($('<td>')
-                        .append("<audio controls><source src=`https://api.sanal.link/api/cdr/stream/106025162/1` type=`audio/ogg`><source src=`horse.mp3` type=`audio/mpeg`></audio>")
-                    )
-                );
-            });
         })
     </script>
         <div>
@@ -137,7 +114,7 @@
                       <a class="nav-link" href="websocket.html">Anasayfa<span class="sr-only">(current)</span></a>
                     </li>
                     <li class="nav-item">
-                      <a class="nav-link" href="cdr.html">Arama Kaydı Getirme</a>
+                      <a class="nav-link" href="cdr.html">Arama Kaydı Getir</a>
                     </li>
                   </ul>
                 </div>
@@ -156,7 +133,6 @@
             </div>
             <div>
                 <button class="btn btn-success" id="getCdr" onclick="getCdr()">Arama Kayıtları Getir</button>
-                <button class="btn btn-danger" id="getCdr" onclick="deleteCdr()">Arama Kayıtları Sil</button>
             </div>
             <h2 id="text2">Yükleniyor</h2> 
             <div class="progress" id="progress">
