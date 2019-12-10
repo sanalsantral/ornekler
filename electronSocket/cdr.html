@@ -61,13 +61,14 @@
                 durum:"8",
             }
             requestCdrProps.baslangic_tarih = document.getElementById("baslangicDate").value
-            requestCdrProps.bitis_tarih = document.getElementById("bitisDate").value
+            requestCdrProps.bitis_tarih = document.getElementById("bitisDate").value 
             $('#progress').css('display','inline-block');
             $('.progress').css('display','-webkit-box');
             $('.progress').css('display','-ms-flexbox');
             $('.progress').css('display','flex');
             $('#text2').css('display','block'); 
             $('#text2').css('text-align','center'); 
+            $("#text2").html("Yükleniyor");
             ipcRenderer.send("getCdr",requestCdrProps)
         }
         function getFilter() {
