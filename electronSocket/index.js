@@ -384,7 +384,7 @@ async function main() {
             icon: path.resolve(__dirname, 'image', 'amblem32x32.png'),
             show: false
         });
-        // win.webContents.openDevTools();
+        win.webContents.openDevTools();
         const gotTheLock = app.requestSingleInstanceLock()
         await logla('Uygulama başladı.');
         if (!gotTheLock) {
@@ -426,8 +426,14 @@ async function main() {
             wsMain(arg);
             if (baglandi) ws.close();
         });
-        ipcMain.on('getCdr', (event,arg) =>{ 
-            getCdr(arg)
+        ipcMain.on('getCdr', (event,arg) =>{
+            parseBas = Date.parse(arg.baslangic_tarih)
+            parseBit = Date.parse(arg.bitis_tarih)
+            if(parseBas >= parseBit){
+                dialog.showErrorBox('Hata', 'Başlangıç tarihi bitiş tarihinden büyük olamaz');
+            }else{
+                getCdr(arg)
+            }
         });
         ipcMain.on('deleteCdr',(event,arg) =>{
             deleteCdr()
