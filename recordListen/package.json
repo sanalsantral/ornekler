@@ -8,6 +8,7 @@
     "rebuild": "electron-rebuild -f -w sqlite3",
     "test": "echo \"Error: no test specified\" && exit 1",
     "pack:windows": "electron-packager . sanalsantral --platform=win32",
+    "pack:mac": "electron-packager . sanalsantral --platform=darwin --arch=x64",
     "pack:linux": "electron-packager . sanalsantral --platform=linux --arch=x64",
     "dist:windows": "electron-builder --windows",
     "dist:linux": "electron-builder --linux deb tar.xz",
