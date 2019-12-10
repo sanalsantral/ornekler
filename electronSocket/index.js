@@ -242,7 +242,7 @@ async function getRecord(slicedStr,arg,suan,kisim){
             try {
                 let response = await axios({
                     method: "get",
-                    url: `https://api.sanal.link/api/cdrr/download/${instance.linkedid}/?api_key=${arg.api_key}&santral_id=${arg.santral_id}`,
+                    url: `https://api.sanal.link/api/cdr/download/${instance.linkedid}/?api_key=${arg.api_key}&santral_id=${arg.santral_id}`,
                     responseType: "stream"
                 }) 
                 response.data.pipe(fs.createWriteStream(path.resolve(__dirname,`./${moment(arg.baslangic_tarih).format('DD.MM.YYYY')}-${moment(arg.bitis_tarih).format('DD.MM.YYYY')}/sesler/${instance.linkedid}.wav`)));
