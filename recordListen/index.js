@@ -13,9 +13,9 @@ const { app ,BrowserWindow ,ipcMain ,ipcRenderer ,dialog } = require('electron')
         throw err;
         for (var index in files) {
             if(files[index].includes("db")){
-                connectUrl=path.join(__dirname,`./../../../${files[index]}`)
+                connectUrl = path.join(__dirname,`./../../../${files[index]}`)
             }else if(files[index].includes("sesler")){
-                fetchUrl=path.join(__dirname,`./../../../${files[index]}`)
+                fetchUrl = path.join(__dirname,`./../../../${files[index]}`)
             }else{
                 console.log(files[index]);
             }
@@ -68,7 +68,8 @@ const { app ,BrowserWindow ,ipcMain ,ipcRenderer ,dialog } = require('electron')
                 nodeIntegration: true
             }
         });
-        //win.webContents.openDevTools();
+        win.setMenuBarVisibility(false)
+        win.webContents.openDevTools();
         const fpath = path.join(__dirname, 'home.html');
         if (process.platform === 'linux') {
             win.loadURL(`file:${fpath}`);
