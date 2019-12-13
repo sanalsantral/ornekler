@@ -11,8 +11,13 @@ printerPos/node_modules/*
 printerPos/auth.js
 electronSocket/recordListen/node_modules/*
 recordListen/node_modules/*
+recordListen/sanalsantral-win32-x64
+recordListen/sanalsantral-linux-x64
+recordListen/sanalsantral-darwin-x64
 electronSocket/sanalsantral-win32-x64
 electronSocket/sanalsantral-linux-x64
+electronSocket/sanalsantral-darwin-x64
+electronSocket/sanalsantralSocket-darwin-x64
 electronSocket/sanalsantralSocket-linux-x64
 electronSocket/sanalsantralSocket-wi32-x64
 electronSocket/**/kayitDinle

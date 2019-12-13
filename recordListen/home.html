@@ -52,6 +52,18 @@
                 display: block;
                 height: 650px;
             }
+            .table-wrapper-scroll {
+                display: block;
+                height: 40px;
+            }
+            .my-custom-scrollbar-header {
+                margin: 15px;
+                height: auto;
+                overflow: auto;
+            }
+            #myTable2 {
+                margin-bottom: 0rem;
+            }
         </style>
     </head>
 <body>
@@ -86,6 +98,12 @@
                .append($('<tr id="myTableRow">')
                    .append($('<td>')
                        .append(item.unique_id)
+                   )
+                   .append($('<td>')
+                       .append(item.kaynak)
+                   )
+                   .append($('<td>')
+                       .append(item.hedef)
                    )
                    .append($('<td>')
                        .append(item.cevaplayanlar)
@@ -132,8 +150,8 @@
               </div>
             </div>
             <h2 class="headerText">Çağrı Listesi</h2>
-            <div class="table-wrapper-scroll-y my-custom-scrollbar">
-                <table id="myTable" class="table">
+            <div class="table-wrapper-scroll my-custom-scrollbar-header">
+                <table id="myTable2" class="table">
                     <thead>
                     <tr>
                         <th scope="col">Unique Id</th>
@@ -145,6 +163,10 @@
                         <th scope="col">Ses</th>
                     </tr>
                     </thead>
+                </table>
+            </div>
+            <div class="table-wrapper-scroll-y my-custom-scrollbar">
+                <table id="myTable" class="table">
                     <tbody>
                     </tbody>
                 </table>

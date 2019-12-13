@@ -12,6 +12,7 @@
     "rebuild": "electron-rebuild -f -w sqlite3",
     "postinstall": "install-app-deps",
     "pack:windows": "electron-packager . sanalsantralSocket --platform=win32",
+    "pack:mac": "electron-packager . sanalsantralSocket --platform=darwin --arch=x64",
     "pack:linux": "electron-packager . sanalsantralSocket --platform=linux --arch=x64",
     "dist:windows": "electron-builder --windows",
     "dist:linux": "electron-builder --linux deb tar.xz"
