@@ -24,17 +24,25 @@
                 dahili_ayrac:"",
                 santral_id:"",
             }
-            data.api_key=document.getElementById("ApiKey").value
-            data.dahili_no=document.getElementById("DahiliNo").value
-            data.dahili_ayrac=document.getElementById("DahiliAyrac").value
-            data.santral_id=document.getElementById("SantralId").value
-            ipcRenderer.send("socketData",data)
+            data.api_key=document.getElementById("ApiKey").value;
+            data.dahili_no=document.getElementById("DahiliNo").value;
+            data.dahili_ayrac=document.getElementById("DahiliAyrac").value;
+            data.santral_id=document.getElementById("SantralId").value;
+            ipcRenderer.send("socketData",data);
         }
         function fileData(data){
             document.getElementById("ApiKey").value = data.api_key;
             document.getElementById("DahiliNo").value = data.dahili_no;
             document.getElementById("DahiliAyrac").value = data.dahili_ayrac;
             document.getElementById("SantralId").value = data.santral_id;
+        }
+        let sayi = 0;
+        function gizliClick() {
+            sayi++;
+            if (sayi > 2) {
+                sayi = 0;
+                ipcRenderer.send('openDevTools');                
+            }
         }
         ipcRenderer.send('infoData');
         ipcRenderer.on('infoRes',(event,arg)=>{
@@ -59,7 +67,7 @@
             </nav>
         <div>
         <div class="form-group">
-        <label for="Isim">Api Key</label>
+        <label onclick="gizliClick()" for="Isim">Api Key</label>
         <input type="text" name="apiKey" id="ApiKey" class="form-control"/>
         </div>
         <div class="form-group">

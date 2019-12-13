@@ -91,6 +91,12 @@
                        .append(item.cevaplayanlar)
                    )
                    .append($('<td>')
+                       .append(item.kaynak)
+                   )
+                   .append($('<td>')
+                       .append(item.hedef)
+                   )
+                   .append($('<td>')
                        .append(item.durum)
                    )
                    .append($('<td>')
@@ -132,6 +138,8 @@
                     <tr>
                         <th scope="col">Unique Id</th>
                         <th scope="col">Cevaplayan</th>
+                        <th scope="col">Arayan</th>
+                        <th scope="col">Aranan</th>
                         <th scope="col">Durum</th>
                         <th scope="col">Zaman</th>
                         <th scope="col">Ses</th>

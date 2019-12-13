@@ -24,10 +24,9 @@
   "dependencies": {
     "axios": "^0.19.0",
     "child_process": "^1.0.2",
-    "electron-packager": "^14.1.1",
     "fs-extra": "^8.1.0",
     "jquery": "^3.4.1",
-    "knex": "^0.20.3",
+    "knex": "^0.20.4",
     "mkdirp": "^0.5.1",
     "moment": "^2.24.0",
     "ncp": "^2.0.0",
@@ -38,7 +37,8 @@
   },
   "devDependencies": {
     "electron": "^5.0.1",
-    "electron-builder": "^21.1.1"
+    "electron-builder": "^21.1.1",
+    "electron-packager": "^14.1.1"
   },
   "build": {
     "appId": "com.sanalsantral",
