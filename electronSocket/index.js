@@ -102,11 +102,12 @@ async function createDatabase(arg) {
 
 function fileCopy(arg) {
     return new Promise((resolve, reject) => {
-        fs.mkdir(path.resolve(__dirname, `../../${arg.numara}_${moment(arg.baslangic_tarih).format('YYYYMMDD')}_${moment(arg.bitis_tarih).format('YYYYMMDD')}`), function () {
+        console.log(arg.numara.substring(1,arg.numara.length))
+        fs.mkdir(path.resolve(__dirname, `../../${arg.numara.substring(1,arg.numara.length)}_${moment(arg.baslangic_tarih).format('YYYYMMDD')}_${moment(arg.bitis_tarih).format('YYYYMMDD')}`), function () {
             logla("klasör oluşturuldu:" + __dirname);
-            fs.mkdir(path.resolve(__dirname, `../../${arg.numara}_${moment(arg.baslangic_tarih).format('YYYYMMDD')}_${moment(arg.bitis_tarih).format('YYYYMMDD')}/sesler`), function () {
+            fs.mkdir(path.resolve(__dirname, `../../${arg.numara.substring(1,arg.numara.length)}_${moment(arg.baslangic_tarih).format('YYYYMMDD')}_${moment(arg.bitis_tarih).format('YYYYMMDD')}/sesler`), function () {
                 logla("klasör oluşturuldu:" + path.resolve(__dirname, `../../${moment(arg.baslangic_tarih).format('YYYYMMDD')}_${moment(arg.bitis_tarih).format('YYYYMMDD')}/sesler`));
-                let copyPath = `${arg.numara}_${moment(arg.baslangic_tarih).format('YYYYMMDD')}_${moment(arg.bitis_tarih).format('YYYYMMDD')}`;
+                let copyPath = `${arg.numara.substring(1,arg.numara.length)}_${moment(arg.baslangic_tarih).format('YYYYMMDD')}_${moment(arg.bitis_tarih).format('YYYYMMDD')}`;
                 fs.mkdirSync(path.resolve(__dirname, `../../${copyPath}/db`));
                 let src;
                 let dbSrc;
@@ -212,7 +213,7 @@ function wsMain(newSocketData) {
                         logla('Socket bağlantısı sağlandı.');
                         baglandi = true;
                         win.hide();
-                        // win.show();
+                        win.show();
                     } else if (baglandi && wssmessage.komut === 'arayan') {
                         if (wssmessage.olay === 'dial') {
                             let donus = shell.openItem(`infinia:${wssmessage.arayan}`);
@@ -249,7 +250,7 @@ function wsMain(newSocketData) {
 }
 
 async function getRecord(slicedStr, arg, suan, kisim) {
-    let yol = `${arg.numara}_${moment(arg.baslangic_tarih).format('YYYYMMDD')}_${moment(arg.bitis_tarih).format('YYYYMMDD')}`;
+    let yol = `${arg.numara.substring(1,arg.numara.length)}_${moment(arg.baslangic_tarih).format('YYYYMMDD')}_${moment(arg.bitis_tarih).format('YYYYMMDD')}`;
     logla(`DB Yol: ${path.join(__dirname, `../../${yol}/db/cdr.db`)}`);
     let conn = {
         filename: path.join(__dirname, `../../${yol}/db/cdr.db`)
