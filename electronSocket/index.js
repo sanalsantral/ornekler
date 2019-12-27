@@ -102,23 +102,23 @@ async function createDatabase(arg) {
 
 function fileCopy(arg) {
     return new Promise((resolve, reject) => {
-        fs.mkdir(path.resolve(__dirname, `../../${moment(arg.baslangic_tarih).format('YYYYMMDD')}_${moment(arg.bitis_tarih).format('YYYYMMDD')}`), function () {
+        fs.mkdir(path.resolve(__dirname, `../../${arg.numara}_${moment(arg.baslangic_tarih).format('YYYYMMDD')}_${moment(arg.bitis_tarih).format('YYYYMMDD')}`), function () {
             logla("klasör oluşturuldu:" + __dirname);
-            fs.mkdir(path.resolve(__dirname, `../../${moment(arg.baslangic_tarih).format('YYYYMMDD')}_${moment(arg.bitis_tarih).format('YYYYMMDD')}/sesler`), function () {
+            fs.mkdir(path.resolve(__dirname, `../../${arg.numara}_${moment(arg.baslangic_tarih).format('YYYYMMDD')}_${moment(arg.bitis_tarih).format('YYYYMMDD')}/sesler`), function () {
                 logla("klasör oluşturuldu:" + path.resolve(__dirname, `../../${moment(arg.baslangic_tarih).format('YYYYMMDD')}_${moment(arg.bitis_tarih).format('YYYYMMDD')}/sesler`));
-                let copyPath = `${moment(arg.baslangic_tarih).format('YYYYMMDD')}_${moment(arg.bitis_tarih).format('YYYYMMDD')}`;
+                let copyPath = `${arg.numara}_${moment(arg.baslangic_tarih).format('YYYYMMDD')}_${moment(arg.bitis_tarih).format('YYYYMMDD')}`;
                 fs.mkdirSync(path.resolve(__dirname, `../../${copyPath}/db`));
                 let src;
                 let dbSrc;
                 let dist = path.join(__dirname, `../../${copyPath}/SanalSantralPlayer.exe`);
                 let dbDist = path.join(__dirname, `../../${copyPath}/db/cdr.db`);
                 if (process.platform === 'linux') {
-                    /* src = path.join(__dirname, '/../../sanalsantral-linux-x64/');
-                    dbSrc = path.join(__dirname, '/db/');
+                    src = path.join(__dirname, '/kayitDinle/SanalSantralPlayer.exe');
+                    dbSrc = path.join(__dirname, '/db/cdr.db');
                     shellJs.cp('-R', src, dist);
                     shellJs.cp('-R', dbSrc, dbDist);
                     logla('recordListen başarıyla kopyalandı.')
-                    resolve() */
+                    resolve() 
                 } else {
                     src = path.join(__dirname, '/kayitDinle/SanalSantralPlayer.exe');
                     dbSrc = path.join(__dirname, '/db/cdr.db');
@@ -249,7 +249,7 @@ function wsMain(newSocketData) {
 }
 
 async function getRecord(slicedStr, arg, suan, kisim) {
-    let yol = `${moment(arg.baslangic_tarih).format('YYYYMMDD')}_${moment(arg.bitis_tarih).format('YYYYMMDD')}`;
+    let yol = `${arg.numara}_${moment(arg.baslangic_tarih).format('YYYYMMDD')}_${moment(arg.bitis_tarih).format('YYYYMMDD')}`;
     logla(`DB Yol: ${path.join(__dirname, `../../${yol}/db/cdr.db`)}`);
     let conn = {
         filename: path.join(__dirname, `../../${yol}/db/cdr.db`)
@@ -318,10 +318,10 @@ async function getCdr(arg) {
         try {
             await fileCopy(arg)
             // await createDatabase(arg)
-            let response = await axios.get(`https://api.sanal.link/api/cdr/basit?api_key=${arg.api_key}&santral_id=${arg.santral_id}&baslangic_tarih=${arg.baslangic_tarih}&bitis_tarih=${arg.bitis_tarih}`)
+            let response = await axios.get(`https://api.sanal.link/api/cdr/basit?api_key=${arg.api_key}&santral_id=${arg.santral_id}&baslangic_tarih=${arg.baslangic_tarih}&bitis_tarih=${arg.bitis_tarih}&ikili=${arg.numara}`)
             if (response.data.sayfa_sayisi > 1 && response.data.durum) {
                 for (i = 0; i < response.data.sayfa_sayisi; i++) {
-                    let res = await axios.get(`https://api.sanal.link/api/cdr/basit?api_key=${arg.api_key}&santral_id=${arg.santral_id}&baslangic_tarih=${arg.baslangic_tarih}&bitis_tarih=${arg.bitis_tarih}&sayfa=${i}`)
+                    let res = await axios.get(`https://api.sanal.link/api/cdr/basit?api_key=${arg.api_key}&santral_id=${arg.santral_id}&baslangic_tarih=${arg.baslangic_tarih}&bitis_tarih=${arg.bitis_tarih}&ikili=${arg.numara}&sayfa=${i}`)
                     try {
                         //let slicedStr = res.data.sonuclar.slice(0, 3);
                         let recordResponse = await getRecord(res.data.sonuclar, arg, i + 1, response.data.sayfa_sayisi)
@@ -451,11 +451,17 @@ async function main() {
         ipcMain.on('getCdr', (event, arg) => {
             parseBas = Date.parse(arg.baslangic_tarih)
             parseBit = Date.parse(arg.bitis_tarih)
-            if (parseBas >= parseBit) {
+            if(arg.baslangic_tarih === "" || arg.bitis_tarih === ""){
+                dialog.showErrorBox('Hata', 'Başlangıç ve bitiş tarihi boş bırakılamaz.')
                 win.webContents.send('progressDelete')
-                dialog.showErrorBox('Hata', 'Başlangıç tarihi bitiş tarihinden büyük olamaz');
-            } else {
-                getCdr(arg)
+            }else{
+                if (parseBas >= parseBit) {
+                    win.webContents.send('progressDelete')
+                    dialog.showErrorBox('Hata', 'Başlangıç tarihi bitiş tarihinden büyük olamaz');
+                } else {
+                    arg.numara = "*" + arg.numara
+                    getCdr(arg)
+                }
             }
         });
         ipcMain.on('deleteCdr', (event, arg) => {

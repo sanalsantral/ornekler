@@ -20,6 +20,11 @@
                 margin-right: 10px;
                 align-items: center;
             }
+            #label {
+                margin-top: 5px;
+                margin-right: 10px;
+                align-items: center;
+            }
             #bitisDate {
                 border-width: 0px;
             }
@@ -33,6 +38,13 @@
             #text2 {
                 text-align: center;
                 display: none;
+            }
+            .form-group{
+                display: flex;
+                flex-direction: row;
+                margin-bottom: 10px;
+                margin: 10px;
+                width: 250px;
             }
         </style>
     </head>
@@ -56,12 +68,14 @@
             let requestCdrProps={
                 api_key:"",
                 santral_id:"",
-                baslangic_tarih:"2019-11-01",
-                bitis_tarih:"2019-11-11",
+                baslangic_tarih:"",
+                bitis_tarih:"",
+                numara:"",
                 durum:"8",
             }
             requestCdrProps.baslangic_tarih = document.getElementById("baslangicDate").value
             requestCdrProps.bitis_tarih = document.getElementById("bitisDate").value 
+            requestCdrProps.numara = document.getElementById("numara").value
             $('#progress').css('display','inline-block');
             $('.progress').css('display','-webkit-box');
             $('.progress').css('display','-ms-flexbox');
@@ -124,11 +138,15 @@
             <div>
                 <div id="main">
                     <p id="text">Başlangıç Tarihi Seçiniz:</p>
-                    <input type="date" name="bday" id="baslangicDate" max="2019-12-31">
+                    <input type="date" name="bday" id="baslangicDate">
                 </div>
                 <div id="main">
                     <p id="text">Bitiş Tarihi Seçiniz:</p> 
-                    <input type="date" name="bday" id="bitisDate" max="2019-12-31">
+                    <input type="date" name="bday" id="bitisDate">
+                </div>
+                <div class="form-group">
+                    <label for="Email" id="label">Numara:</label>
+                    <input name="arayan" id="numara" class="form-control"/>
                 </div>
             </div>
             <div>

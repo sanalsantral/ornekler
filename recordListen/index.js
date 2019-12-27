@@ -107,7 +107,7 @@ function main() {
             nodeIntegration: true
         }
     });
-    //win.webContents.openDevTools();
+    // win.webContents.openDevTools();
     const fpath = path.join(__dirname, 'home.html');
     if (process.platform === 'linux') {
         win.loadURL(`file:${fpath}`);
@@ -123,25 +123,57 @@ function main() {
         let baslangic = Date.parse(arg.baslangic_tarih)
         let bitis = Date.parse(arg.bitis_tarih)
         let filter = []
-        cdr.map(arama => {
-            var date = arama.zaman.split(".");
-            date[2] = date[2].substring(0, 4);
-            var yeniFormat = new Date(date[2], date[1] - 1, date[0]);
-            let zaman = Date.parse(yeniFormat)
-            if (arg.durum !== "Hepsi") {
-                if (baslangic <= zaman && bitis >= zaman && arg.durum === arama.durum) {
-                    filter.push(arama)
+        if(!isNaN(baslangic) && !isNaN(bitis)){
+            cdr.map(arama => {
+                var date = arama.zaman.split(".");
+                date[2] = date[2].substring(0, 4);
+                var yeniFormat = new Date(date[2], date[1] - 1, date[0]);
+                let zaman = Date.parse(yeniFormat)
+                if (arg.durum !== "Hepsi") {
+                    if (baslangic <= zaman && bitis >= zaman && arg.durum === arama.durum) {
+                        if(arg.arayan !== "" && arg.aranan !== ""){
+                            if(arama.kaynak.includes(arg.arayan) && arama.hedef.includes(arg.aranan)){
+                                filter.push(arama)
+                            }
+                        }else if(arg.arayan !== "" && arg.aranan === ""){
+                            if(arama.kaynak.includes(arg.arayan)){
+                                filter.push(arama)
+                            }
+                        }else if(arg.arayan === "" && arg.aranan !== ""){
+                            if(arama.hedef.includes(arg.aranan)){
+                                filter.push(arama)
+                            }
+                        }else{
+                            filter.push(arama)
+                        }
+                    }
+                } else {
+                    if (baslangic <= zaman && bitis >= zaman) {
+                        if(arg.arayan !== "" && arg.aranan !== ""){
+                            if(arama.kaynak.includes(arg.arayan) && arama.hedef.includes(arg.aranan)){
+                                filter.push(arama)
+                            }
+                        }else if(arg.arayan !== "" && arg.aranan === ""){
+                            if(arama.kaynak.includes(arg.arayan)){
+                                filter.push(arama)
+                            }
+                        }else if(arg.arayan === "" && arg.aranan !== ""){
+                            if(arama.hedef.includes(arg.aranan)){
+                                filter.push(arama)
+                            }
+                        }else{
+                            filter.push(arama)
+                        }
+                    }
                 }
+            })
+            if (filter.length !== 0) {
+                win.webContents.send('getFilterRes', filter);
             } else {
-                if (baslangic <= zaman && bitis >= zaman) {
-                    filter.push(arama)
-                }
+                dialog.showErrorBox('Uyarı', 'Arama kaydı yok.')
             }
-        })
-        if (filter.length !== 0) {
-            win.webContents.send('getFilterRes', filter);
-        } else {
-            dialog.showErrorBox('Uyarı', 'Girilen tarihler arası arama kaydı yok.')
+        }else{
+            dialog.showErrorBox('Uyarı', 'Filtreleme için tarih aralığı giriniz.')
         }
     })
 

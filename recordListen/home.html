@@ -61,6 +61,18 @@
                 height: auto;
                 overflow: auto;
             }
+            .form-group{
+                display: flex;
+                flex-direction: row;
+                margin-bottom: 10px;
+                margin: 10px;
+                width: 250px;
+            }
+            #label {
+                margin-top: 5px;
+                margin-right: 10px;
+                align-items: center;
+            }
             #myTable2 {
                 margin-bottom: 0rem;
             }
@@ -81,11 +93,15 @@
             baslangic_tarih: "",
             bitis_tarih: "",
             durum: "",
+            arayan: "",
+            aranan: "",
         }
         $("#myTable > tbody").empty();
         filterData.baslangic_tarih = document.getElementById("baslangicDate").value
         filterData.bitis_tarih = document.getElementById("bitisDate").value
         filterData.durum = document.getElementById("durum").value
+        filterData.arayan = document.getElementById("arayan").value
+        filterData.aranan = document.getElementById("aranan").value
         filterData.baslangic_tarih = moment(filterData.baslangic_tarih, 'YYYY-MM-DD').subtract(1,'day').format('YYYY-MM-DD')
         // filterData.bitis_tarih = moment(filterData.bitis_tarih).format('DD-MM-YYYY HH:mm')*/ 
         //console.log(filterData)
@@ -109,12 +125,6 @@
                        .append(item.cevaplayanlar)
                    )
                    .append($('<td>')
-                       .append(item.kaynak)
-                   )
-                   .append($('<td>')
-                       .append(item.hedef)
-                   )
-                   .append($('<td>')
                        .append(item.durum)
                    )
                    .append($('<td>')
@@ -133,11 +143,19 @@
         <div>
             <div id="main">
                 <p id="text">Başlangıç Tarihi Seçiniz:</p>
-                <input type="date" name="bday" id="baslangicDate" max="2019-12-31">
+                <input type="date" name="bday" id="baslangicDate">
             </div>
             <div id="main">
                 <p id="text">Bitiş Tarihi Seçiniz:</p> 
-                <input type="date" name="bday" id="bitisDate" max="2019-12-31">
+                <input type="date" name="bday" id="bitisDate">
+            </div>
+            <div class="form-group">
+                <label for="Email" id="label">Arayan:</label>
+                <input name="arayan" id="arayan" class="form-control"/>
+            </div>
+            <div class="form-group">
+                <label for="Email" id="label">Aranan:</label>
+                <input name="aranan" id="aranan" class="form-control"/>
             </div>
             <select class="browser-default custom-select" id="durum" onclick=durumSec()>
                 <option value="Hepsi">Hepsi</option>
@@ -154,13 +172,13 @@
                 <table id="myTable2" class="table">
                     <thead>
                     <tr>
-                        <th scope="col">Unique Id</th>
-                        <th scope="col">Cevaplayan</th>
-                        <th scope="col">Arayan</th>
-                        <th scope="col">Aranan</th>
-                        <th scope="col">Durum</th>
-                        <th scope="col">Zaman</th>
-                        <th scope="col">Ses</th>
+                        <th scope="col" style="width: 187px;">Unique Id</th>
+                        <th scope="col" style="width: 237px;">Arayan</th>
+                        <th scope="col" style="width: 215px;">Aranan</th>
+                        <th scope="col" style="width: 110px;">Cevaplayan</th>
+                        <th scope="col" style="width: 190px;">Durum</th>
+                        <th scope="col" style="width: 312px;">Zaman</th>
+                        <th scope="col" style="width: 555px;">Ses</th>
                     </tr>
                     </thead>
                 </table>
