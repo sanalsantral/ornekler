@@ -44,8 +44,15 @@ function readDir() {
     connectUrl = path.join(__dirname, '../../db');
     fetchUrl = path.join(__dirname, '../../sesler');
     //logla(`connectUrl:${connectUrl}`);
-    //logla(`fetchUrl:${fetchUrl}`);    
-    getRecord();
+    //logla(`fetchUrl:${fetchUrl}`);  
+   let filterObj = {
+    aranan:"",
+    arayan:"",
+    baslangic_tarih:"",
+    bitis_tarih:"",
+    durum:"Hepsi",
+   } 
+    getRecord(filterObj,1);
     /* try {
         fs.readdir(path.join(__dirname, './'), function (err, files) {
             if (err)
@@ -67,8 +74,8 @@ function readDir() {
         logla('readDir:Hata:' + err.stack);
     } */
 }
-
-async function getRecord() {
+let index = 0
+async function getRecord(filterData,page) {
     try {
         knex = require("knex")({
             client: "sqlite3",
@@ -81,17 +88,63 @@ async function getRecord() {
                 max: 2,
             },
         });
-        const res = await knex.select().from("cdr")
-        //logla("Cdr kayıt:"+res[0])
-        let result = res.filter(instance => instance.data !== null);
-        for (let r of result) {
-            let obj = {
-                url: `${fetchUrl}/${r.linkedid}.wav`
-            };
-            Object.assign(r, r, obj);
+        let length = await knex.select().from("cdr").count('unique_id')
+        let res = "";
+        if(Object.values(length[0])[0] > index){
+            let baseQuery = knex.select().from("cdr").limit(20).offset(index)
+            let baslangic = Date.parse(filterData.baslangic_tarih)
+            let bitis = Date.parse(filterData.bitis_tarih)
+            if(!isNaN(baslangic) && !isNaN(bitis)){
+                baslangic = moment(baslangic).format('DD.MM.YYYY');
+                bitis = moment(bitis).format('DD.MM.YYYY');
+                baseQuery.where('zaman','>=',baslangic).where('zaman','<',bitis)
+                if (filterData.durum !== "Hepsi"){
+                    if(filterData.arayan !== "" && filterData.aranan !== ""){
+                        res = await baseQuery.where('durum',filterData.durum).where('hedef','like',`%${filterData.aranan}%`).where('kaynak','like',`%${filterData.arayan}%`)
+                        index += 20
+                    }else if(filterData.arayan !== "" && filterData.aranan === ""){
+                        res = await baseQuery.where('durum',filterData.durum).where('kaynak','like',`%${filterData.arayan}%`)
+                        index += 20
+                    }else if(filterData.arayan === "" && filterData.aranan !== ""){
+                        res = await baseQuery.where('durum',filterData.durum).where('hedef','like',`%${filterData.aranan}%`)
+                        index += 20
+                    }else{
+                        res = await baseQuery.where('durum',filterData.durum)
+                        index += 20
+                    }
+                }else{
+                    if(filterData.arayan !== "" && filterData.aranan !== ""){
+                        res = await baseQuery.where('hedef','like',`%${filterData.aranan}%`).where('kaynak','like',`%${filterData.arayan}%`)
+                        index += 20
+                    }else if(filterData.arayan !== "" && filterData.aranan === ""){
+                        res = await baseQuery.where('kaynak','like',`%${filterData.arayan}%`)
+                        index += 20
+                    }else if(filterData.arayan === "" && filterData.aranan !== ""){
+                        res = await baseQuery.where('hedef','like',`%${filterData.aranan}%`)
+                        index += 20
+                    }else{
+                        res = await baseQuery
+                        index += 20
+                    }
+                }
+            }else{
+                res = await baseQuery
+                index += 20
+            }
         }
-        cdr = result;
-        win.webContents.send('getFilterRes', result);
+        if(res.length !== 0){
+            let result = res.filter(instance => instance.data !== null);
+            for (let r of result) {
+                let obj = {
+                    url: `${fetchUrl}/${r.linkedid}.wav`
+                };
+                Object.assign(r, r, obj);
+            }
+            cdr = result;
+            win.webContents.send('getRes',result,page);
+        }else{
+            win.webContents.send('getRes',res,page);
+        }
     } catch (err) {
        logla('getRecord:' + err.stack);
     }
@@ -119,64 +172,13 @@ function main() {
     ipcMain.on('ready', (event, arg) => {
         readDir();
     });
-    ipcMain.on('getFilter', (event, arg) => {
-        let baslangic = Date.parse(arg.baslangic_tarih)
-        let bitis = Date.parse(arg.bitis_tarih)
-        let filter = []
-        if(!isNaN(baslangic) && !isNaN(bitis)){
-            cdr.map(arama => {
-                var date = arama.zaman.split(".");
-                date[2] = date[2].substring(0, 4);
-                var yeniFormat = new Date(date[2], date[1] - 1, date[0]);
-                let zaman = Date.parse(yeniFormat)
-                if (arg.durum !== "Hepsi") {
-                    if (baslangic <= zaman && bitis >= zaman && arg.durum === arama.durum) {
-                        if(arg.arayan !== "" && arg.aranan !== ""){
-                            if(arama.kaynak.includes(arg.arayan) && arama.hedef.includes(arg.aranan)){
-                                filter.push(arama)
-                            }
-                        }else if(arg.arayan !== "" && arg.aranan === ""){
-                            if(arama.kaynak.includes(arg.arayan)){
-                                filter.push(arama)
-                            }
-                        }else if(arg.arayan === "" && arg.aranan !== ""){
-                            if(arama.hedef.includes(arg.aranan)){
-                                filter.push(arama)
-                            }
-                        }else{
-                            filter.push(arama)
-                        }
-                    }
-                } else {
-                    if (baslangic <= zaman && bitis >= zaman) {
-                        if(arg.arayan !== "" && arg.aranan !== ""){
-                            if(arama.kaynak.includes(arg.arayan) && arama.hedef.includes(arg.aranan)){
-                                filter.push(arama)
-                            }
-                        }else if(arg.arayan !== "" && arg.aranan === ""){
-                            if(arama.kaynak.includes(arg.arayan)){
-                                filter.push(arama)
-                            }
-                        }else if(arg.arayan === "" && arg.aranan !== ""){
-                            if(arama.hedef.includes(arg.aranan)){
-                                filter.push(arama)
-                            }
-                        }else{
-                            filter.push(arama)
-                        }
-                    }
-                }
-            })
-            if (filter.length !== 0) {
-                win.webContents.send('getFilterRes', filter);
-            } else {
-                dialog.showErrorBox('Uyarı', 'Arama kaydı yok.')
-            }
-        }else{
-            dialog.showErrorBox('Uyarı', 'Filtreleme için tarih aralığı giriniz.')
-        }
+    ipcMain.on('newData',(event,arg,page)=>{
+        index = 0;
+        getRecord(arg,page);
     })
-
+    ipcMain.on('changeData',(event,arg,page)=>{
+        getRecord(arg,page);
+    })
 }
 
 app.on('ready', main);

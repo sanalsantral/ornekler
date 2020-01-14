@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html> 
     <head>
+        <script>window.$ = window.jQuery = require('jquery');</script>
+        <script src="https://unpkg.com/bootstrap-table@1.14.2/dist/bootstrap-table.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
         <style>
             #parent {
@@ -80,13 +83,17 @@
     </head>
 <body>
     <script>
+
+    function audioFormatter(value) {
+        return `<audio controls><source src="file:${value}" type="audio/wav"></audio>`
+    }
+
       let ipc = require('electron').ipcRenderer;
       const moment = require('moment');
       ipc.send("ready","çalistir")
       function durumSec () {
         let durum = ""
         durum = document.getElementById("durum").value
-        //console.log(durum)
       }
       function getFilter() {
         let filterData = {
@@ -104,41 +111,54 @@
         filterData.aranan = document.getElementById("aranan").value
         filterData.baslangic_tarih = moment(filterData.baslangic_tarih, 'YYYY-MM-DD').subtract(1,'day').format('YYYY-MM-DD')
         // filterData.bitis_tarih = moment(filterData.bitis_tarih).format('DD-MM-YYYY HH:mm')*/ 
-        //console.log(filterData)
-        ipc.send("getFilter",filterData)
+        $(function () {
+            $('#table').bootstrapTable("destroy");
+        });
+        data = []
+        ipc.send("newData",filterData,1)
       }
-      ipc.on('getFilterRes',(event,arg) => {
-          //console.log(arg)
-          arg.forEach(function(item) {
-               $("#myTable").find('tbody')
-               .append($('<tr id="myTableRow">')
-                   .append($('<td>')
-                       .append(item.unique_id)
-                   )
-                   .append($('<td>')
-                       .append(item.kaynak)
-                   )
-                   .append($('<td>')
-                       .append(item.hedef)
-                   )
-                   .append($('<td>')
-                       .append(item.cevaplayanlar)
-                   )
-                   .append($('<td>')
-                       .append(item.durum)
-                   )
-                   .append($('<td>')
-                       .append(item.zaman)
-                   )
-                   .append($('<td>')
-                       .append( `<audio controls>
-                                    <source src="file:${item.url}" type="audio/wav">
-                                </audio>`
-                              )            
-                    )
-               );
-           })
-      })  
+    let data = []
+    ipc.on('getRes',(event,arg,page) => {
+        if(arg.length !== 0){
+            if(data.length !== 0 ){
+                data = [...data, ...arg]
+            }else{
+                data = arg
+            }
+            $(function () {
+                $('#table').bootstrapTable("destroy");
+                $('#table').bootstrapTable({
+                    data: data,
+                    formatLoadingMessage: function() {
+                    return '';
+                    }
+                });
+                $('#table').bootstrapTable('selectPage', page);
+            });
+        }
+    })
+    $(function () {
+            $('#table').on('page-change.bs.table', function (value,size) {
+                let filterData = {
+                baslangic_tarih: "",
+                bitis_tarih: "",
+                durum: "",
+                arayan: "",
+                aranan: "",
+            }
+            $("#myTable > tbody").empty();
+            filterData.baslangic_tarih = document.getElementById("baslangicDate").value
+            filterData.bitis_tarih = document.getElementById("bitisDate").value
+            filterData.durum = document.getElementById("durum").value
+            filterData.arayan = document.getElementById("arayan").value
+            filterData.aranan = document.getElementById("aranan").value
+            filterData.baslangic_tarih = moment(filterData.baslangic_tarih, 'YYYY-MM-DD').subtract(1,'day').format('YYYY-MM-DD')
+            let filter = ""
+            if(size === parseInt(data.length / 10)){
+                ipc.send("changeData",filterData,size)
+            }
+        })
+    })
     </script>
         <div>
             <div id="main">
@@ -167,32 +187,27 @@
                   <button class="btn btn-success" id="getFilter" onclick="getFilter()">Filtrele</button>
               </div>
             </div>
-            <h2 class="headerText">Çağrı Listesi</h2>
-            <div class="table-wrapper-scroll my-custom-scrollbar-header">
-                <table id="myTable2" class="table">
-                    <thead>
-                    <tr>
-                        <th scope="col" style="width: 187px;">Unique Id</th>
-                        <th scope="col" style="width: 237px;">Arayan</th>
-                        <th scope="col" style="width: 215px;">Aranan</th>
-                        <th scope="col" style="width: 110px;">Cevaplayan</th>
-                        <th scope="col" style="width: 190px;">Durum</th>
-                        <th scope="col" style="width: 312px;">Zaman</th>
-                        <th scope="col" style="width: 555px;">Ses</th>
-                    </tr>
-                    </thead>
-                </table>
-            </div>
-            <div class="table-wrapper-scroll-y my-custom-scrollbar">
-                <table id="myTable" class="table">
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
+            <table id="table"  data-show-header="true" data-pagination="true"
+                data-id-field="unique_id"
+                data-page-list="[10]"
+                data-page-size="10">
+                <thead>
+                <tr>
+                    <th data-field="unique_id">UniqueId</th>
+                    <th data-field="kaynak" >Arayan</th>
+                    <th data-field="hedef" >Aranan</th>
+                    <th data-field="cevaplayanlar">Cevaplayan</th>
+                    <th data-field="durum">Durum</th>
+                    <th data-field="zaman">Zaman</th>
+                    <th data-field="url" data-formatter="audioFormatter">Ses</th>
+                </tr>
+                </thead>
+            <tbody>
+                </tbody>
+            </table>
         </div>
 </body>
-<script>window.$ = window.jQuery = require('jquery');</script>
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
