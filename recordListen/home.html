@@ -88,14 +88,18 @@
         return `<audio controls><source src="file:${value}" type="audio/wav"></audio>`
     }
 
-      let ipc = require('electron').ipcRenderer;
-      const moment = require('moment');
-      ipc.send("ready","çalistir")
-      function durumSec () {
-        let durum = ""
-        durum = document.getElementById("durum").value
-      }
-      function getFilter() {
+    function downloadButton(value) {
+        return `<button class="btn"><a href="/${value.substr(value.indexOf('/') + 1)}" download="${value.substr(0,value.indexOf('/'))}.wav">Download</button>`
+    }
+
+    let ipc = require('electron').ipcRenderer;
+    const moment = require('moment');
+    ipc.send("ready","çalistir")
+    function durumSec () {
+      let durum = ""
+      durum = document.getElementById("durum").value
+    }
+    function getFilter() {
         let filterData = {
             baslangic_tarih: "",
             bitis_tarih: "",
@@ -116,10 +120,11 @@
         });
         data = []
         ipc.send("newData",filterData,1)
-      }
+    }
     let data = []
     ipc.on('getRes',(event,arg,page) => {
         if(arg.length !== 0){
+            data.unique
             if(data.length !== 0 ){
                 data = [...data, ...arg]
             }else{
@@ -200,6 +205,7 @@
                     <th data-field="durum">Durum</th>
                     <th data-field="zaman">Zaman</th>
                     <th data-field="url" data-formatter="audioFormatter">Ses</th>
+                    <th data-field="downloadField" data-formatter="downloadButton">Download</th>
                 </tr>
                 </thead>
             <tbody>

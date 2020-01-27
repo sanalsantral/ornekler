@@ -141,6 +141,9 @@ async function getRecord(filterData,page) {
                 Object.assign(r, r, obj);
             }
             cdr = result;
+            result.map((r,i)=>{
+                result[i].downloadField = r.unique_id+r.url
+            })
             win.webContents.send('getRes',result,page);
         }else{
             win.webContents.send('getRes',res,page);
@@ -160,7 +163,7 @@ function main() {
             nodeIntegration: true
         }
     });
-    // win.webContents.openDevTools();
+    win.webContents.openDevTools();
     const fpath = path.join(__dirname, 'home.html');
     if (process.platform === 'linux') {
         win.loadURL(`file:${fpath}`);
