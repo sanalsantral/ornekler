@@ -22,6 +22,7 @@ if (handleSquirrelEvent(app)) {
     return;
 }
 
+
 let tray = null;
 
 let appPath = "";
@@ -310,6 +311,7 @@ async function getRecord(slicedStr, arg, suan, kisim) {
 
 async function getCdr(arg) {
     let data = fs.readFileSync(path.resolve(__dirname, '../../info.json'), "utf8");
+    let yol = `${moment(arg.baslangic_tarih).format('DD.MM.YYYY')}-${moment(arg.bitis_tarih).format('DD.MM.YYYY')}`
     arg.api_key = JSON.parse(data).api_key
     arg.santral_id = JSON.parse(data).santral_id
     let diff = Math.floor((Date.parse(arg.bitis_tarih) - Date.parse(arg.baslangic_tarih)) / 86400000);
@@ -339,7 +341,7 @@ async function getCdr(arg) {
                                 buttons: ['Tamam'],
                                 defaultId: 1,
                                 title: 'Bilgilendirme',
-                                message: 'Çağrı geçmişi başarılı bir şekilde çekildi.'
+                                message: `Çağrı geçmişi başarılı bir şekilde çekildi.Kayıtlar ${path.resolve(__dirname, `../../${yol}`)} dizinindedir.`
                             }, (response) => {
                                 logla(response);
                             });
