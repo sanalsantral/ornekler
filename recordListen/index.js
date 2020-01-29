@@ -88,7 +88,6 @@ async function getRecord(filterData,page) {
         });
         let length = await knex.select().from("cdr").count('unique_id')
         let res = "";
-        console.log(filterData)
         if(Object.values(length[0])[0] > index){
             let baseQuery = knex.select().from("cdr").limit(20).offset(index)
             let baslangic = Date.parse(filterData.baslangic_tarih)
@@ -165,7 +164,7 @@ function main() {
             nodeIntegration: true
         }
     });
-    win.webContents.openDevTools();
+    // win.webContents.openDevTools();
     const fpath = path.join(__dirname, 'home.html');
     if (process.platform === 'linux') {
         win.loadURL(`file:${fpath}`);
@@ -180,7 +179,6 @@ function main() {
             baslangicDate : moment(dateUrl[dateUrl.length-2]).format('YYYY-MM-DD'),
             bitisDate : moment(dateUrl[dateUrl.length-1].replace("/","")).format('YYYY-MM-DD') 
         }
-        console.log(dateData)
         readDir(dateData);
         win.webContents.send('dateSet',dateData)
     });

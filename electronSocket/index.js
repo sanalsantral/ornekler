@@ -103,7 +103,7 @@ async function createDatabase(arg) {
 
 function fileCopy(arg) {
     return new Promise((resolve, reject) => {
-        console.log(arg.numara.substring(1,arg.numara.length))
+        // console.log(arg.numara.substring(1,arg.numara.length))
         fs.mkdir(path.resolve(__dirname, `../../${arg.numara.substring(1,arg.numara.length)}_${moment(arg.baslangic_tarih).format('YYYYMMDD')}_${moment(arg.bitis_tarih).format('YYYYMMDD')}`), function () {
             logla("klasör oluşturuldu:" + __dirname);
             fs.mkdir(path.resolve(__dirname, `../../${arg.numara.substring(1,arg.numara.length)}_${moment(arg.baslangic_tarih).format('YYYYMMDD')}_${moment(arg.bitis_tarih).format('YYYYMMDD')}/sesler`), function () {
@@ -321,7 +321,7 @@ async function getCdr(arg) {
         try {
             await fileCopy(arg)
             // await createDatabase(arg)
-            console.log(arg)
+            // console.log(arg)
             let response = await axios.get(`https://api.sanal.link/api/cdr/basit?api_key=${arg.api_key}&santral_id=${arg.santral_id}&baslangic_tarih=${arg.baslangic_tarih}&bitis_tarih=${arg.bitis_tarih}&ikili=${arg.numara}`)
             if (response.data.sayfa_sayisi > 1 && response.data.durum) {
                 for (i = 0; i < response.data.sayfa_sayisi; i++) {
