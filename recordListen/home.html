@@ -89,7 +89,6 @@
     }
 
     function downloadButton(value) {
-        console.log(value)
         if (process.platform === "win32") {
             return `<button class="btn"><a href="${value.substr(value.indexOf("\\"))}" download="${value.substr(0,value.indexOf("C:"))}.wav">İndir</button>`
         } else {
@@ -118,7 +117,7 @@
         filterData.durum = document.getElementById("durum").value
         filterData.arayan = document.getElementById("arayan").value
         filterData.aranan = document.getElementById("aranan").value
-        filterData.baslangic_tarih = moment(filterData.baslangic_tarih, 'YYYY-MM-DD').subtract(1,'day').format('YYYY-MM-DD')
+        /*filterData.baslangic_tarih = moment(filterData.baslangic_tarih, 'YYYY-MM-DD').subtract(1,'day').format('YYYY-MM-DD')*/
         // filterData.bitis_tarih = moment(filterData.bitis_tarih).format('DD-MM-YYYY HH:mm')*/ 
         $(function () {
             $('#table').bootstrapTable("destroy");
@@ -127,6 +126,12 @@
         ipc.send("newData",filterData,1)
     }
     let data = []
+    ipc.on('dateSet',(event,arg)=> {
+        $(function () {
+            $("#baslangicDate").val(arg.baslangicDate);
+            $("#bitisDate").val(arg.bitisDate);
+        })
+    })
     ipc.on('getRes',(event,arg,page) => {
         if(arg.length !== 0){
             data.unique
@@ -148,7 +153,7 @@
         }
     })
     $(function () {
-            $('#table').on('page-change.bs.table', function (value,size) {
+            $('#table').on('page-change.bs.table', function (value,size) {  
                 let filterData = {
                 baslangic_tarih: "",
                 bitis_tarih: "",
@@ -162,7 +167,7 @@
             filterData.durum = document.getElementById("durum").value
             filterData.arayan = document.getElementById("arayan").value
             filterData.aranan = document.getElementById("aranan").value
-            filterData.baslangic_tarih = moment(filterData.baslangic_tarih, 'YYYY-MM-DD').subtract(1,'day').format('YYYY-MM-DD')
+            // filterData.baslangic_tarih = moment(filterData.baslangic_tarih, 'YYYY-MM-DD').subtract(1,'day').format('YYYY-MM-DD')
             let filter = ""
             if(size === parseInt(data.length / 10)){
                 ipc.send("changeData",filterData,size)

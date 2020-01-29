@@ -364,7 +364,7 @@ async function getCdr(arg) {
                             buttons: ['Tamam'],
                             defaultId: 1,
                             title: 'Bilgilendirme',
-                            message: 'Çağrı geçmişi başarılı bir şekilde çekildi.'
+                            message: `Çağrı geçmişi başarılı bir şekilde çekildi.Kayıtlar ${path.resolve(__dirname, `../../${yol}`)} dizinindedir.`
                         }, (response) => {
                             logla(response);
                         });

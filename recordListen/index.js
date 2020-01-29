@@ -5,6 +5,7 @@ const moment = require('moment');
 let win;
 let connectUrl;
 let fetchUrl;
+let dateUrl;
 let knex;
 let cdr;
 
@@ -39,17 +40,14 @@ function logla(str) {
     });
 }
 
-function readDir() {
-    //logla(path.join(__dirname, './'));
+function readDir(dateData) {
     connectUrl = path.join(__dirname, '../../db');
     fetchUrl = path.join(__dirname, '../../sesler');
-    //logla(`connectUrl:${connectUrl}`);
-    //logla(`fetchUrl:${fetchUrl}`);  
    let filterObj = {
     aranan:"",
     arayan:"",
-    baslangic_tarih:"",
-    bitis_tarih:"",
+    baslangic_tarih:dateData.baslangicDate,
+    bitis_tarih: dateData.bitisDate,
     durum:"Hepsi",
    } 
     getRecord(filterObj,1);
@@ -90,46 +88,50 @@ async function getRecord(filterData,page) {
         });
         let length = await knex.select().from("cdr").count('unique_id')
         let res = "";
+        console.log(filterData)
         if(Object.values(length[0])[0] > index){
             let baseQuery = knex.select().from("cdr").limit(20).offset(index)
             let baslangic = Date.parse(filterData.baslangic_tarih)
             let bitis = Date.parse(filterData.bitis_tarih)
-            if(!isNaN(baslangic) && !isNaN(bitis)){
-                baslangic = moment(baslangic).format('DD.MM.YYYY');
-                bitis = moment(bitis).format('DD.MM.YYYY');
-                baseQuery.where('zaman','>=',baslangic).where('zaman','<',bitis)
-                if (filterData.durum !== "Hepsi"){
-                    if(filterData.arayan !== "" && filterData.aranan !== ""){
-                        res = await baseQuery.where('durum',filterData.durum).where('hedef','like',`%${filterData.aranan}%`).where('kaynak','like',`%${filterData.arayan}%`)
-                        index += 20
-                    }else if(filterData.arayan !== "" && filterData.aranan === ""){
-                        res = await baseQuery.where('durum',filterData.durum).where('kaynak','like',`%${filterData.arayan}%`)
-                        index += 20
-                    }else if(filterData.arayan === "" && filterData.aranan !== ""){
-                        res = await baseQuery.where('durum',filterData.durum).where('hedef','like',`%${filterData.aranan}%`)
-                        index += 20
+            if(bitis < baslangic){
+                dialog.showErrorBox('Hata', 'Başlangıç tarihi bitiş tarihinden büyük olamaz.');
+            }else{
+                if(!isNaN(baslangic) && !isNaN(bitis)){
+                    baslangic = moment(baslangic).format('DD.MM.YYYY');
+                    bitis = moment(bitis).add(1,'day').format('DD.MM.YYYY')
+                    baseQuery.where('zaman','>=',baslangic).where('zaman','<',bitis)
+                    if (filterData.durum !== "Hepsi"){
+                        if(filterData.arayan !== "" && filterData.aranan !== ""){
+                            res = await baseQuery.where('durum',filterData.durum).where('hedef','like',`%${filterData.aranan}%`).where('kaynak','like',`%${filterData.arayan}%`)
+                            index += 20
+                        }else if(filterData.arayan !== "" && filterData.aranan === ""){
+                            res = await baseQuery.where('durum',filterData.durum).where('kaynak','like',`%${filterData.arayan}%`)
+                            index += 20
+                        }else if(filterData.arayan === "" && filterData.aranan !== ""){
+                            res = await baseQuery.where('durum',filterData.durum).where('hedef','like',`%${filterData.aranan}%`)
+                            index += 20
+                        }else{
+                            res = await baseQuery.where('durum',filterData.durum)
+                            index += 20
+                        }
                     }else{
-                        res = await baseQuery.where('durum',filterData.durum)
-                        index += 20
+                        if(filterData.arayan !== "" && filterData.aranan !== ""){
+                            res = await baseQuery.where('hedef','like',`%${filterData.aranan}%`).where('kaynak','like',`%${filterData.arayan}%`)
+                            index += 20
+                        }else if(filterData.arayan !== "" && filterData.aranan === ""){
+                            res = await baseQuery.where('kaynak','like',`%${filterData.arayan}%`)
+                            index += 20
+                        }else if(filterData.arayan === "" && filterData.aranan !== ""){
+                            res = await baseQuery.where('hedef','like',`%${filterData.aranan}%`)
+                            index += 20
+                        }else{
+                            res = await baseQuery
+                            index += 20
+                        }
                     }
                 }else{
-                    if(filterData.arayan !== "" && filterData.aranan !== ""){
-                        res = await baseQuery.where('hedef','like',`%${filterData.aranan}%`).where('kaynak','like',`%${filterData.arayan}%`)
-                        index += 20
-                    }else if(filterData.arayan !== "" && filterData.aranan === ""){
-                        res = await baseQuery.where('kaynak','like',`%${filterData.arayan}%`)
-                        index += 20
-                    }else if(filterData.arayan === "" && filterData.aranan !== ""){
-                        res = await baseQuery.where('hedef','like',`%${filterData.aranan}%`)
-                        index += 20
-                    }else{
-                        res = await baseQuery
-                        index += 20
-                    }
+                    dialog.showErrorBox('Hata', 'Lütfen Tarih Seçiniz.');
                 }
-            }else{
-                res = await baseQuery
-                index += 20
             }
         }
         if(res.length !== 0){
@@ -163,7 +165,7 @@ function main() {
             nodeIntegration: true
         }
     });
-   //  win.webContents.openDevTools();
+    win.webContents.openDevTools();
     const fpath = path.join(__dirname, 'home.html');
     if (process.platform === 'linux') {
         win.loadURL(`file:${fpath}`);
@@ -173,7 +175,14 @@ function main() {
         win.loadURL(fpath);
     }
     ipcMain.on('ready', (event, arg) => {
-        readDir();
+        dateUrl = path.join(__dirname, '../../').split('_')
+        let dateData = {
+            baslangicDate : moment(dateUrl[dateUrl.length-2]).format('YYYY-MM-DD'),
+            bitisDate : moment(dateUrl[dateUrl.length-1].replace("/","")).format('YYYY-MM-DD') 
+        }
+        console.log(dateData)
+        readDir(dateData);
+        win.webContents.send('dateSet',dateData)
     });
     ipcMain.on('newData',(event,arg,page)=>{
         index = 0;
