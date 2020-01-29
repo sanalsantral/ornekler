@@ -321,6 +321,7 @@ async function getCdr(arg) {
         try {
             await fileCopy(arg)
             // await createDatabase(arg)
+            console.log(arg)
             let response = await axios.get(`https://api.sanal.link/api/cdr/basit?api_key=${arg.api_key}&santral_id=${arg.santral_id}&baslangic_tarih=${arg.baslangic_tarih}&bitis_tarih=${arg.bitis_tarih}&ikili=${arg.numara}`)
             if (response.data.sayfa_sayisi > 1 && response.data.durum) {
                 for (i = 0; i < response.data.sayfa_sayisi; i++) {

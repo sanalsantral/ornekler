@@ -89,13 +89,12 @@
     }
 
     function downloadButton(value) {
-        let symbol = ""
+        console.log(value)
         if (process.platform === "win32") {
-            symbol = "\\"
+            return `<button class="btn"><a href="${value.substr(value.indexOf("\\"))}" download="${value.substr(0,value.indexOf("C:"))}.wav">İndir</button>`
         } else {
-            symbol = "/"
+            return `<button class="btn"><a href="${value.substr(value.indexOf("/"))}" download="${value.substr(0,value.indexOf("/"))}.wav">İndir</button>`
         }
-        return `<button class="btn"><a href="${value.substr(value.indexOf(symbol))}" download="${value.substr(0,value.indexOf(symbol))}.wav">İndir</button>`
     }
 
     let ipc = require('electron').ipcRenderer;

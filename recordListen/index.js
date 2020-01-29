@@ -163,7 +163,7 @@ function main() {
             nodeIntegration: true
         }
     });
-    win.webContents.openDevTools();
+   //  win.webContents.openDevTools();
     const fpath = path.join(__dirname, 'home.html');
     if (process.platform === 'linux') {
         win.loadURL(`file:${fpath}`);
