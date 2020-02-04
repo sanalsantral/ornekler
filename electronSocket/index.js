@@ -313,6 +313,7 @@ async function getRecord(slicedStr, arg, suan, kisim) {
 async function getCdr(arg) {
     let data = fs.readFileSync(path.resolve(__dirname, '../../info.json'), "utf8");
     let yol = `${moment(arg.baslangic_tarih).format('DD.MM.YYYY')}-${moment(arg.bitis_tarih).format('DD.MM.YYYY')}`
+    let copyPath = `${arg.numara.substring(1,arg.numara.length)}_${moment(arg.baslangic_tarih).format('YYYYMMDD')}_${moment(arg.bitis_tarih).format('YYYYMMDD')}`;
     arg.api_key = JSON.parse(data).api_key
     arg.santral_id = JSON.parse(data).santral_id
     let diff = Math.floor((Date.parse(arg.bitis_tarih) - Date.parse(arg.baslangic_tarih)) / 86400000);
@@ -328,8 +329,8 @@ async function getCdr(arg) {
                 for (i = 0; i < response.data.sayfa_sayisi; i++) {
                     let res = await axios.get(`https://api.sanal.link/api/cdr/basit?api_key=${arg.api_key}&santral_id=${arg.santral_id}&baslangic_tarih=${arg.baslangic_tarih}&bitis_tarih=${arg.bitis_tarih}&ikili=${arg.numara}&sayfa=${i}`)
                     try {
-                        // let slicedStr = res.data.sonuclar.slice(0, 3);
-                        let recordResponse = await getRecord(res.data.sonuclar, arg, i + 1, response.data.sayfa_sayisi)
+                        let slicedStr = res.data.sonuclar.slice(0, 3);
+                        let recordResponse = await getRecord(slicedStr/*res.data.sonuclar*/, arg, i + 1, response.data.sayfa_sayisi)
                         if (i + 1 === response.data.sayfa_sayisi) {
                             obj = {
                                 yuzde: 1,
@@ -343,11 +344,11 @@ async function getCdr(arg) {
                                 buttons: ['Tamam'],
                                 defaultId: 1,
                                 title: 'Bilgilendirme',
-                                message: `Çağrı geçmişi başarılı bir şekilde çekildi.Kayıtlar ${path.resolve(__dirname, `../../${yol}`)} dizinindedir.`,
+                                message: `Çağrı geçmişi başarılı bir şekilde çekildi.Kayıtlar ${path.resolve(__dirname, `../../${copyPath}`)} dizinindedir.`,
                                 cancelId: 1,
                             }, (response) => {
                                 if(response === 0){
-                                    dialog.showOpenDialog({title:`${path.resolve(__dirname, `../../${yol}`)}`,defaultPath:`${path.resolve(__dirname, `../../${yol}`)}`,properties: ['openFile']})
+                                    dialog.showOpenDialog({title:`${path.resolve(__dirname, `../../${copyPath}`)}`,defaultPath:`${path.resolve(__dirname, `../../${copyPath}`)}`,properties: ['openFile']})
                                 }
                                 logla(response);
                             });
@@ -361,19 +362,19 @@ async function getCdr(arg) {
             } else {
                 if (response.data.durum) {
                     try {
-                        // let slicedStr = response.data.sonuclar.slice(0, 3);
-                        let recordResponse = await getRecord(response.data.sonuclar, arg, 1, 1)
+                        let slicedStr = response.data.sonuclar.slice(0, 3);
+                        let recordResponse = await getRecord(slicedStr/*response.data.sonuclar*/, arg, 1, 1)
                         win.webContents.send('progressFinish', obj)
                         dialog.showMessageBox(null, {
                             type: 'info',
                             buttons: ['Tamam'],
                             defaultId: 1,
                             title: 'Bilgilendirme',
-                            message: `Çağrı geçmişi başarılı bir şekilde çekildi.Kayıtlar ${path.resolve(__dirname, `../../${yol}`)} dizinindedir.`,
+                            message: `Çağrı geçmişi başarılı bir şekilde çekildi.Kayıtlar ${path.resolve(__dirname, `../../${copyPath}`)} dizinindedir.`,
                             cancelId: 1,
                         }, (response) => {
                             if(response === 0){
-                                dialog.showOpenDialog({title:`${path.resolve(__dirname, `../../${yol}`)}`,defaultPath:`${path.resolve(__dirname, `../../${yol}`)}`,properties: ['openFile']})
+                                dialog.showOpenDialog({title:`${path.resolve(__dirname, `../../${copyPath}`)}`,defaultPath:`${path.resolve(__dirname, `../../${copyPath}`)}`,properties: ['openFile']})
                             }
                             logla(response);
                         });
@@ -413,7 +414,7 @@ async function main() {
             icon: path.resolve(__dirname, 'image', 'amblem32x32.png'),
             show: false
         });
-        // win.webContents.openDevTools();
+        win.webContents.openDevTools();
         const gotTheLock = app.requestSingleInstanceLock()
         await logla('Uygulama başladı.');
         if (!gotTheLock) {
