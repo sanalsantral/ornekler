@@ -348,7 +348,7 @@ async function getCdr(arg) {
                                 cancelId: 1,
                             }, (response) => {
                                 if(response === 0){
-                                    dialog.showOpenDialog({title:`${path.resolve(__dirname, `../../${copyPath}`)}`,defaultPath:`${path.resolve(__dirname, `../../${copyPath}`)}`,properties: ['openFile']})
+                                    shell.openItem(`${path.resolve(__dirname, `../../${copyPath}`)}`)
                                 }
                                 logla(response);
                             });
@@ -374,7 +374,7 @@ async function getCdr(arg) {
                             cancelId: 1,
                         }, (response) => {
                             if(response === 0){
-                                dialog.showOpenDialog({title:`${path.resolve(__dirname, `../../${copyPath}`)}`,defaultPath:`${path.resolve(__dirname, `../../${copyPath}`)}`,properties: ['openFile']})
+                                shell.openItem(`${path.resolve(__dirname, `../../${copyPath}`)}`)
                             }
                             logla(response);
                         });
