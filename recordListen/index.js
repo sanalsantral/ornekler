@@ -176,7 +176,9 @@ function main() {
         dateUrl = path.join(__dirname, '../../').split('_')
         let dateData = {
             baslangicDate : moment(dateUrl[dateUrl.length-2]).format('YYYY-MM-DD'),
-            bitisDate : moment(dateUrl[dateUrl.length-1].replace("/","")).format('YYYY-MM-DD') 
+            bitisDate : process.platform === "win32" 
+                ? moment(dateUrl[dateUrl.length-1].replace("\\","")).format('YYYY-MM-DD') 
+                : moment(dateUrl[dateUrl.length-1].replace("/","")).format('YYYY-MM-DD') 
         }
         readDir(dateData);
         win.webContents.send('dateSet',dateData)
