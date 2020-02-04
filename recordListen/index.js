@@ -90,15 +90,13 @@ async function getRecord(filterData,page) {
         let res = "";
         if(Object.values(length[0])[0] > index){
             let baseQuery = knex.select().from("cdr").limit(20).offset(index)
-            let baslangic = Date.parse(filterData.baslangic_tarih)
-            let bitis = Date.parse(filterData.bitis_tarih)
-            if(bitis < baslangic){
+            let baslangic = Date.parse(moment(filterData.baslangic_tarih))
+            let bitis = Date.parse(moment(filterData.bitis_tarih).add(1,'day'))
+            if (bitis < baslangic){
                 dialog.showErrorBox('Hata', 'Başlangıç tarihi bitiş tarihinden büyük olamaz.');
-            }else{
+            }else {
                 if(!isNaN(baslangic) && !isNaN(bitis)){
-                    baslangic = moment(baslangic).format('DD.MM.YYYY');
-                    bitis = moment(bitis).add(1,'day').format('DD.MM.YYYY')
-                    baseQuery.where('zaman','>=',baslangic).where('zaman','<',bitis)
+                    let baseQuery = knex.whereBetween('zaman', [baslangic,bitis]).select().from("cdr").limit(20).offset(index)
                     if (filterData.durum !== "Hepsi"){
                         if(filterData.arayan !== "" && filterData.aranan !== ""){
                             res = await baseQuery.where('durum',filterData.durum).where('hedef','like',`%${filterData.aranan}%`).where('kaynak','like',`%${filterData.arayan}%`)
@@ -143,6 +141,7 @@ async function getRecord(filterData,page) {
             }
             cdr = result;
             result.map((r,i)=>{
+                result[i].zaman = moment(r.zaman).format("DD-MM-YYYY HH:mm:ss")
                 result[i].downloadField = r.unique_id+r.url
             })
             win.webContents.send('getRes',result,page);

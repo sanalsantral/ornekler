@@ -284,6 +284,7 @@ async function getRecord(slicedStr, arg, suan, kisim) {
                 kisim: kisim,
                 suan: suan
             }
+            instance.zaman = Date.parse(moment(instance.zaman).format("DD.MM.YYYY HH:mm:ss"))
             win.webContents.send('progress', obj);
             let res = await knex('cdr').insert(instance);
             logla(res);
@@ -327,7 +328,7 @@ async function getCdr(arg) {
                 for (i = 0; i < response.data.sayfa_sayisi; i++) {
                     let res = await axios.get(`https://api.sanal.link/api/cdr/basit?api_key=${arg.api_key}&santral_id=${arg.santral_id}&baslangic_tarih=${arg.baslangic_tarih}&bitis_tarih=${arg.bitis_tarih}&ikili=${arg.numara}&sayfa=${i}`)
                     try {
-                        //let slicedStr = res.data.sonuclar.slice(0, 3);
+                        let slicedStr = res.data.sonuclar.slice(0, 3);
                         let recordResponse = await getRecord(res.data.sonuclar, arg, i + 1, response.data.sayfa_sayisi)
                         if (i + 1 === response.data.sayfa_sayisi) {
                             obj = {
@@ -342,8 +343,12 @@ async function getCdr(arg) {
                                 buttons: ['Tamam'],
                                 defaultId: 1,
                                 title: 'Bilgilendirme',
-                                message: `Çağrı geçmişi başarılı bir şekilde çekildi.Kayıtlar ${path.resolve(__dirname, `../../${yol}`)} dizinindedir.`
+                                message: `Çağrı geçmişi başarılı bir şekilde çekildi.Kayıtlar ${path.resolve(__dirname, `../../${yol}`)} dizinindedir.`,
+                                cancelId: 1,
                             }, (response) => {
+                                if(response === 0){
+                                    dialog.showOpenDialog({title:`${path.resolve(__dirname, `../../${yol}`)}`,defaultPath:`${path.resolve(__dirname, `../../${yol}`)}`,properties: ['openFile']})
+                                }
                                 logla(response);
                             });
                         }
@@ -364,8 +369,12 @@ async function getCdr(arg) {
                             buttons: ['Tamam'],
                             defaultId: 1,
                             title: 'Bilgilendirme',
-                            message: `Çağrı geçmişi başarılı bir şekilde çekildi.Kayıtlar ${path.resolve(__dirname, `../../${yol}`)} dizinindedir.`
+                            message: `Çağrı geçmişi başarılı bir şekilde çekildi.Kayıtlar ${path.resolve(__dirname, `../../${yol}`)} dizinindedir.`,
+                            cancelId: 1,
                         }, (response) => {
+                            if(response === 0){
+                                dialog.showOpenDialog({title:`${path.resolve(__dirname, `../../${yol}`)}`,defaultPath:`${path.resolve(__dirname, `../../${yol}`)}`,properties: ['openFile']})
+                            }
                             logla(response);
                         });
                     } catch (err) {
