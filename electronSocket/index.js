@@ -328,7 +328,7 @@ async function getCdr(arg) {
                 for (i = 0; i < response.data.sayfa_sayisi; i++) {
                     let res = await axios.get(`https://api.sanal.link/api/cdr/basit?api_key=${arg.api_key}&santral_id=${arg.santral_id}&baslangic_tarih=${arg.baslangic_tarih}&bitis_tarih=${arg.bitis_tarih}&ikili=${arg.numara}&sayfa=${i}`)
                     try {
-                        let slicedStr = res.data.sonuclar.slice(0, 3);
+                        // let slicedStr = res.data.sonuclar.slice(0, 3);
                         let recordResponse = await getRecord(res.data.sonuclar, arg, i + 1, response.data.sayfa_sayisi)
                         if (i + 1 === response.data.sayfa_sayisi) {
                             obj = {
