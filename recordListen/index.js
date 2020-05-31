@@ -90,12 +90,14 @@ async function getRecord(filterData,page) {
         let res = "";
         if(Object.values(length[0])[0] > index){
             let baseQuery = knex.select().from("cdr").limit(20).offset(index)
-            let baslangic = Date.parse(moment(filterData.baslangic_tarih))
-            let bitis = Date.parse(moment(filterData.bitis_tarih).add(1,'day'))
+            let baslangic = moment(filterData.baslangic_tarih).unix();
+            let bitis = moment(filterData.bitis_tarih).add(1,'day').unix();
             if (bitis < baslangic){
                 dialog.showErrorBox('Hata', 'Başlangıç tarihi bitiş tarihinden büyük olamaz.');
             }else {
-                if(!isNaN(baslangic) && !isNaN(bitis)){
+                baslangic = moment(filterData.baslangic_tarih).format('DD-MM-YYYY HH:mm:ss');
+                bitis = moment(filterData.bitis_tarih).format('DD-MM-YYYY 59:59:59');
+                if(baslangic !== 'Invalid date' && bitis !== 'Invalid date'){
                     let baseQuery = knex.whereBetween('zaman', [baslangic,bitis]).select().from("cdr").limit(20).offset(index)
                     if (filterData.durum !== "Hepsi"){
                         if(filterData.arayan !== "" && filterData.aranan !== ""){
