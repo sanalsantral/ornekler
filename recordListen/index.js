@@ -11,6 +11,7 @@ let cdr;
 
 if (process.platform === "win32") {
     appPath = app.getAppPath().split('\\')
+    console.log(app.getAppPath());
 } else {
     appPath = app.getAppPath().split('/')
 }
@@ -19,7 +20,7 @@ function logla(str) {
         let date = new Date(Date.now());
         let formatted_date = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
         if (appPath[appPath.length - 1] === 'electronSocket' || appPath[appPath.length - 1] === 'app') {
-            fs.appendFile(path.resolve(__dirname, 'general.log'), str + ' ' + formatted_date + "\n", function (err) {
+            fs.appendFile(path.resolve(__dirname, '\\..\\..\\general.log'), str + ' ' + formatted_date + "\n", function (err) {
                 if (err) {
                     reject();
                     return;
@@ -41,8 +42,9 @@ function logla(str) {
 }
 
 function readDir(dateData) {
-    connectUrl = path.join(__dirname, '../../db');
-    fetchUrl = path.join(__dirname, '../../sesler');
+    connectUrl = path.join(__dirname, './db');
+    fetchUrl = path.join(__dirname, './sesler');
+    logla("urller:"+connectUrl+"      "+fetchUrl);
    let filterObj = {
     aranan:"",
     arayan:"",
@@ -75,6 +77,7 @@ function readDir(dateData) {
 let index = 0
 async function getRecord(filterData,page) {
     try {
+        logla("connectUrl:"+connectUrl);
         knex = require("knex")({
             client: "sqlite3",
             connection: {
@@ -98,7 +101,7 @@ async function getRecord(filterData,page) {
                 baslangic = moment(filterData.baslangic_tarih).format('DD-MM-YYYY HH:mm:ss');
                 bitis = moment(filterData.bitis_tarih).format('DD-MM-YYYY 59:59:59');
                 if(baslangic !== 'Invalid date' && bitis !== 'Invalid date'){
-                    let baseQuery = knex.whereBetween('zaman', [baslangic,bitis]).select().from("cdr").limit(20).offset(index)
+                    baseQuery = knex.whereBetween('zaman', [baslangic,bitis]).select().from("cdr").limit(20).offset(index)
                     if (filterData.durum !== "Hepsi"){
                         if(filterData.arayan !== "" && filterData.aranan !== ""){
                             res = await baseQuery.where('durum',filterData.durum).where('hedef','like',`%${filterData.aranan}%`).where('kaynak','like',`%${filterData.arayan}%`)
@@ -135,6 +138,7 @@ async function getRecord(filterData,page) {
         }
         if(res.length !== 0){
             let result = res.filter(instance => instance.data !== null);
+            logla('fetchUrl:' + fetchUrl);
             for (let r of result) {
                 let obj = {
                     url: `${fetchUrl}/${r.linkedid}.wav`
@@ -165,7 +169,7 @@ function main() {
             nodeIntegration: true
         }
     });
-    // win.webContents.openDevTools();
+    win.webContents.openDevTools();
     const fpath = path.join(__dirname, 'home.html');
     if (process.platform === 'linux') {
         win.loadURL(`file:${fpath}`);
@@ -175,7 +179,8 @@ function main() {
         win.loadURL(fpath);
     }
     ipcMain.on('ready', (event, arg) => {
-        dateUrl = path.join(__dirname, '../../').split('_')
+        dateUrl = path.join(__dirname, './').split('_')
+        logla("dateUrl:"+dateUrl);
         let dateData = {
             baslangicDate : moment(dateUrl[dateUrl.length-2]).format('YYYY-MM-DD'),
             bitisDate : process.platform === "win32" 
@@ -187,6 +192,7 @@ function main() {
     });
     ipcMain.on('newData',(event,arg,page)=>{
         index = 0;
+        logla("connectUrl:"+connectUrl);
         getRecord(arg,page);
     })
     ipcMain.on('changeData',(event,arg,page)=>{
