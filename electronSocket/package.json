@@ -9,8 +9,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
-    "pack:windows": "electron-packager . sanalsantral --platform=win32",
-    "pack:linux": "electron-packager . sanalsantral --platform=linux --arch=x64",
+    "rebuild": "electron-rebuild -f -w sqlite3",
+    "postinstall": "install-app-deps",
+    "pack:windows": "electron-packager . sanalsantralSocket --platform=win32",
+    "pack:mac": "electron-packager . sanalsantralSocket --platform=darwin --arch=x64",
+    "pack:linux": "electron-packager . sanalsantralSocket --platform=linux --arch=x64",
     "dist:windows": "electron-builder --windows",
     "dist:linux": "electron-builder --linux deb tar.xz"
   },
@@ -20,11 +23,23 @@
   },
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.19.0",
+    "child_process": "^1.0.2",
+    "fs-extra": "^8.1.0",
+    "jquery": "^3.4.1",
+    "knex": "^0.20.4",
+    "mkdirp": "^0.5.1",
+    "moment": "^2.24.0",
+    "ncp": "^2.0.0",
+    "pwd-fs": "^1.2.12",
+    "shelljs": "^0.8.3",
+    "sqlite3": "^4.1.1",
     "ws": "^7.0.0"
   },
   "devDependencies": {
     "electron": "^5.0.1",
-    "electron-builder": "^21.1.1"
+    "electron-builder": "^21.1.1",
+    "electron-packager": "^14.1.1"
   },
   "build": {
     "appId": "com.sanalsantral",

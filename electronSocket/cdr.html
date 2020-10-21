@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html> 
+    <head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <style>
+            .container {
+                display: flex;
+            }
+            #main {
+                display: flex;
+                flex-direction: row;
+                margin-bottom: 10px;
+                margin: 10px;
+            }
+            #getCdr {
+                margin: 10px;
+            }
+            #text {
+                margin-top: 16px;
+                margin-right: 10px;
+                align-items: center;
+            }
+            #label {
+                margin-top: 5px;
+                margin-right: 10px;
+                align-items: center;
+            }
+            #bitisDate {
+                border-width: 0px;
+            }
+            #baslangicDate {
+                border-width: 0px;
+            }
+            #progress {
+                margin: 15px;
+                display: none;
+            }
+            #text2 {
+                text-align: center;
+                display: none;
+            }
+            .form-group{
+                display: flex;
+                flex-direction: row;
+                margin-bottom: 10px;
+                margin: 10px;
+                width: 250px;
+            }
+        </style>
+    </head>
+<body>
+    <script>
+        const { ipcRenderer } = require('electron');
+        function myFunction() {
+            let data={
+                api_key:"",
+                dahili_no:"",
+                dahili_ayrac:"",
+                santral_id:"",
+            }
+            data.api_key=document.getElementById("ApiKey").value
+            data.dahili_no=document.getElementById("DahiliNo").value
+            data.dahili_ayrac=document.getElementById("DahiliAyrac").value
+            data.santral_id=document.getElementById("SantralId").value
+            ipcRenderer.send("socketData",data)
+        }
+        function getCdr() {
+            let requestCdrProps={
+                api_key:"",
+                santral_id:"",
+                baslangic_tarih:"",
+                bitis_tarih:"",
+                numara:"",
+                durum:"8",
+            }
+            requestCdrProps.baslangic_tarih = document.getElementById("baslangicDate").value
+            requestCdrProps.bitis_tarih = document.getElementById("bitisDate").value 
+            requestCdrProps.numara = document.getElementById("numara").value
+            $('#progress').css('display','inline-block');
+            $('.progress').css('display','-webkit-box');
+            $('.progress').css('display','-ms-flexbox');
+            $('.progress').css('display','flex');
+            $('#text2').css('display','block'); 
+            $('#text2').css('text-align','center'); 
+            $("#text2").html("Yükleniyor");
+            ipcRenderer.send("getCdr",requestCdrProps)
+        }
+        function getFilter() {
+            let filterData = {
+                baslangic_tarih:"",
+                bitis_tarih:"",
+                durum:"",
+            }
+            filterData.baslangic_tarih=document.getElementById("filterBaslangicDate").value
+            filterData.bitis_tarih=document.getElementById("filterBitisDate").value
+            filterData.durum=document.getElementById("filterDurum").value
+            ipcRenderer.send("filterData",filterData)
+        }
+        function deleteCdr() {
+            ipcRenderer.send("deleteCdr")
+        }
+        ipcRenderer.on('progress',(event, args) => {
+            // console.log(args) 
+            $("#text2").html(args.suan+"/"+args.kisim+" Sayfa Yükleniyor "+ (args.yuzde*100).toFixed(2) + "%")
+            $(document).ready(function() {
+                $('#progressBar').css('width', args.yuzde*100 + "%").css('display','inline-block');
+            });
+        })
+        ipcRenderer.on('progressFinish',(event, args) => {
+            $("#text2").html(args.suan+"/"+args.kisim+" Sayfa Yüklendi "+ (args.yuzde*100).toFixed(2) + "%")
+            $(document).ready(function() {
+                $('#progressBar').css('width', args.yuzde*100 + "%").css('display','inline-block');
+            });
+        })
+        ipcRenderer.on('progressDelete',(event, args) => {
+            $('#progress').css('display','none');
+            $('#text2').css('display','none'); 
+        })
+    </script>
+        <div>
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#electron-bar" aria-controls="electron-bar">
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="electron-bar">
+                  <ul class="navbar-nav">
+                    <li class="nav-item active">
+                      <a class="nav-link" href="websocket.html">Anasayfa<span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="cdr.html">Arama Kaydı Getir</a>
+                    </li>
+                  </ul>
+                </div>
+            </nav>
+        <div>
+        <div>
+            <div>
+                <div id="main">
+                    <p id="text">Başlangıç Tarihi Seçiniz:</p>
+                    <input type="date" name="bday" id="baslangicDate">
+                </div>
+                <div id="main">
+                    <p id="text">Bitiş Tarihi Seçiniz:</p> 
+                    <input type="date" name="bday" id="bitisDate">
+                </div>
+                <div class="form-group">
+                    <label for="Email" id="label">Numara:</label>
+                    <input name="arayan" id="numara" class="form-control"/>
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-success" id="getCdr" onclick="getCdr()">Arama Kayıtları Getir</button>
+            </div>
+            <h2 id="text2">Yükleniyor</h2> 
+            <div class="progress" id="progress">
+                <div class="progress-bar" id="progressBar" name="progress" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>window.$ = window.jQuery = require('jquery');</script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</html>

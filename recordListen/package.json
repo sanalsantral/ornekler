@@ -1,0 +1,38 @@
+{
+  "name": "player",
+  "version": "1.0.5",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron .",
+    "rebuild": "electron-rebuild -f -w sqlite3",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pack:windows": "electron-packager . sanalsantral --platform=win32 --asar --overwrite",
+    "pack:linux": "electron-packager . sanalsantral --platform=linux --arch=x64",
+    "dist:windows": "electron-builder --windows",
+    "pack": "electron-builder build --win portable",
+    "dist:linux": "electron-builder --linux deb tar.xz",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dataurl": "^0.1.0",
+    "electron-audio-conversion": "^0.1.0",
+    "electron-packager": "^14.2.0",
+    "jquery": "^3.4.1",
+    "knex": "^0.20.3",
+    "moment": "^2.24.0",
+    "npm": "^6.13.1",
+    "pg": "^7.18.1",
+    "pg-types": "^3.0.0",
+    "sqlite3": "^4.1.1"
+  },
+  "devDependencies": {
+    "electron": "^5.0.9",
+    "electron-builder": "^21.2.0"
+  },
+  "build": {
+    "productName": "SanalSantralPlayer"
+  }
+}

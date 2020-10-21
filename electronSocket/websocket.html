@@ -1,7 +1,18 @@
 <!DOCTYPE html>
 <html> 
     <head>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <style>
+            .container {
+                display: flex;
+            }
+            .input {
+                flex-direction: row;
+            }
+            .form-group{
+                margin: 10px;
+            }
+        </style>
     </head>
 <body>
     <script>
@@ -13,28 +24,51 @@
                 dahili_ayrac:"",
                 santral_id:"",
             }
-            data.api_key=document.getElementById("ApiKey").value
-            data.dahili_no=document.getElementById("DahiliNo").value
-            data.dahili_ayrac=document.getElementById("DahiliAyrac").value
-            data.santral_id=document.getElementById("SantralId").value
-            ipcRenderer.send("socketData",data)
+            data.api_key=document.getElementById("ApiKey").value;
+            data.dahili_no=document.getElementById("DahiliNo").value;
+            data.dahili_ayrac=document.getElementById("DahiliAyrac").value;
+            data.santral_id=document.getElementById("SantralId").value;
+            ipcRenderer.send("socketData",data);
         }
-        
         function fileData(data){
             document.getElementById("ApiKey").value = data.api_key;
             document.getElementById("DahiliNo").value = data.dahili_no;
             document.getElementById("DahiliAyrac").value = data.dahili_ayrac;
             document.getElementById("SantralId").value = data.santral_id;
         }
+        let sayi = 0;
+        function gizliClick() {
+            sayi++;
+            if (sayi > 2) {
+                sayi = 0;
+                ipcRenderer.send('openDevTools');                
+            }
+        }
         ipcRenderer.send('infoData');
         ipcRenderer.on('infoRes',(event,arg)=>{
             fileData(arg)
         }); 
     </script>
-    <div class="container">
+        <div>
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#electron-bar" aria-controls="electron-bar">
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="electron-bar">
+                  <ul class="navbar-nav">
+                    <li class="nav-item active">
+                      <a class="nav-link" href="websocket.html">Anasayfa<span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="cdr.html">Arama Kaydı Getir</a>
+                    </li>
+                  </ul>
+                </div>
+            </nav>
+        <div>
         <div class="form-group">
-            <label for="Isim">Api Key</label>
-            <input type="text" name="apiKey" id="ApiKey" class="form-control"/>
+        <label onclick="gizliClick()" for="Isim">Api Key</label>
+        <input type="text" name="apiKey" id="ApiKey" class="form-control"/>
         </div>
         <div class="form-group">
             <label for="Email">Santral Id</label>
@@ -48,18 +82,25 @@
             <label for="Email">Dahili Ayraç</label>
             <input type="text" name="dahiliAyrac" id="DahiliAyrac" class="form-control"/>
         </div>
-        <div class="form-group">
-            <button class="btn btn-primary" id="kaydet" onclick="myFunction()">Bağlan</button>
-        </div>
-        <div align="center">
-            <img src="./image/amblem.png" width="200" height="200"/>
-        </div>
-        <div align="center">
-            <Text><b>Sanal Santral Telekominikasyon Tic. A.Ş.</b></Text>
-        </div>
-        <div align="center">
-            <Text><b>0850 441 00 00</b></Text>
+            <div class="form-group">
+                <button class="btn btn-primary" id="kaydet" onclick="myFunction()">Bağlan</button>
+            </div>
+            <div align="center">
+                <img src="./image/amblem.png" width="200" height="200"/>
+            </div>
+            <div align="center">
+                <Text><b>Sanal Santral Telekominikasyon Tic. A.Ş.</b></Text>
+            </div>
+            <div align="center">
+                <Text><b>0850 441 00 00</b></Text>
+            </div>
         </div>
     </div>
 </body>
+
+<script>window.$ = window.jQuery = require('jquery');</script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
 </html>
